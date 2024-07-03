@@ -12,13 +12,16 @@ public class KingMovesCalculator implements MoveCalculator {
         int col = myPosition.getColumn() - 1;   // Convert to 0-based index
 
         // Directions the King can move
-        int[] rowDirs = {-1, -1, -1, 0, 0, 1, 1, 1};
-        int[] colDirs = {-1, 0, 1, -1, 1, -1, 0, 1};
+        int[][] kingMoves = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
+        };
 
         // Check in each direction
-        for (int i = 0; i < 8; i++) {
-            int currRow = row + rowDirs[i];
-            int currCol = col + colDirs[i];
+        for (int[] move : kingMoves) {
+            int currRow = row + move[0];
+            int currCol = col + move[1];
 
             // Add only if the move is on the board
             if (isValid(currRow, currCol)) {
@@ -26,7 +29,7 @@ public class KingMovesCalculator implements MoveCalculator {
                 ChessPiece pieceAtPos = board.getPiece(currPos);
                 // Add only if position is open or contains enemy
                 if (pieceAtPos == null || !pieceAtPos.getTeamColor().equals(board.getPiece(myPosition).getTeamColor())) {
-                    moves.add(new ChessMove(myPosition, new ChessPosition(currRow + 1, currCol + 1), null));
+                    moves.add(new ChessMove(myPosition, currPos, null));
                 }
             }
         }

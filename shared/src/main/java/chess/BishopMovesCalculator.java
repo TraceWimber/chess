@@ -12,13 +12,14 @@ public class BishopMovesCalculator implements MoveCalculator {
         int col = myPosition.getColumn() - 1;   // Convert to 0-based indexing
 
         // Directions the bishop can move
-        int[] rowDirs = {-1, -1, 1, 1};
-        int[] colDirs = {-1, 1, -1, 1};
+        int[][] bishopMoves = {
+                {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+        };
 
         // Check in each diagonal direction
-        for (int i = 0; i < 4; i++) {
-            int currRow = row + rowDirs[i];
-            int currCol = col + colDirs[i];
+        for (int[] move : bishopMoves) {
+            int currRow = row + move[0];
+            int currCol = col + move[1];
 
             // Move along diagonal until reaching another piece or edge of board
             while (isValid(currRow, currCol)) {
@@ -33,8 +34,8 @@ public class BishopMovesCalculator implements MoveCalculator {
                     }
                     break;
                 }
-                currRow += rowDirs[i];
-                currCol += colDirs[i];
+                currRow += move[0];
+                currCol += move[1];
             }
         }
         return possibleMoves;
