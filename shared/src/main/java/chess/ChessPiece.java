@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -41,7 +42,7 @@ public class ChessPiece {
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
@@ -62,5 +63,22 @@ public class ChessPiece {
             case PAWN -> moves = new PawnMovesCalculator();
             default -> throw new RuntimeException("Invalid PieceType");
         }).calcMoves(board, myPosition);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ChessPiece that)) return false;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
+    @Override
+    public String toString() {
+        return pieceColor == ChessGame.TeamColor.WHITE ? type.name().substring(0, 1) : type.name().substring(0, 1).toLowerCase();
     }
 }
