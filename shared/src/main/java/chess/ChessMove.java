@@ -43,7 +43,7 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        return promotionPiece;
     }
 
     @Override
@@ -60,6 +60,6 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return "Start:" + startPosition.toString() + " End:" + endPosition.toString();
+        return "Start:" + startPosition.toString() + " End:" + endPosition.toString() + " Promo:" + promotionPiece;
     }
 }
