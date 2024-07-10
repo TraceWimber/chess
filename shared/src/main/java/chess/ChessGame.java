@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -49,7 +50,30 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = gameBoard.getPiece(startPosition);
+        //TODO: Determine if this function should honor who's turn it is or not. Does it do as it says on github in its desc or in pieceMoves' desc.
+        // If there is no piece or if it's not the piece's turn
+        if (piece == null || piece.getTeamColor() != teamTurn) {
+            return null;
+        }
+
+        Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
+        Collection<ChessMove> validMoveSet = new HashSet<>();
+        // Check if each move will result in check
+        for (ChessMove move : moves) {
+            // Temporarily make the move on the board
+            ChessPiece targetPiece = gameBoard.getPiece(move.getEndPosition());
+            gameBoard.addPiece(move.getEndPosition(), piece);
+            gameBoard.addPiece(startPosition, null);
+            // If move doesn't result in check for the moving piece's team, it is a valid move
+            if (!isInCheck(piece.getTeamColor())) {
+                validMoveSet.add(move);
+            }
+            // Revert the move
+            gameBoard.addPiece(startPosition, piece);
+            gameBoard.addPiece(move.getEndPosition(), targetPiece);
+        }
+        return validMoveSet;
     }
 
     /**
@@ -59,7 +83,11 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        if (!validMoves(move.getStartPosition()).contains(move)) {
+            throw new InvalidMoveException("Invalid move!");
+        }
+
+
     }
 
     /**
@@ -69,7 +97,22 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPos = findKingPosition(teamColor);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                //TODO: test if it's necessary to check for the piece being null.
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> moves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
+                    for (ChessMove move : moves) {
+                        if (move.getEndPosition().equals(kingPos)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -109,5 +152,19 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return gameBoard;
+    }
+
+    // Helper function that returns the location of the given team's King
+    private ChessPosition findKingPosition(TeamColor teamColor) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
+                //TODO: test if it's necessary to check for the piece being null.
+                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return new ChessPosition(i + 1, j + 1);
+                }
+            }
+        }
+        return null;
     }
 }
