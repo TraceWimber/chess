@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -46,7 +47,7 @@ public class ChessGame {
      * Gets a valid moves for a piece at the given location
      *
      * @param startPosition the piece to get valid moves for
-     * @return Set of valid moves for requested piece, or null if no piece at
+     * @return Set of valid moves for requested piece, or empty collection if no piece at
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
@@ -54,11 +55,11 @@ public class ChessGame {
         //TODO: Determine if this function should honor who's turn it is or not. Does it do as it says on github in its desc or in pieceMoves' desc.
         // If there is no piece or if it's not the piece's turn
         if (piece == null || piece.getTeamColor() != teamTurn) {
-            return null;
+            return new HashSet<>(); //TODO: this used to return null, but that threw an error, find out what went wrong here.
         }
 
         Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
-        Collection<ChessMove> validMoveSet = new HashSet<>();
+        Set<ChessMove> validMoveSet = new HashSet<>();
         // Check if each move will result in check
         for (ChessMove move : moves) {
             // Temporarily make the move on the board
@@ -83,11 +84,20 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // Check that move is valid
         if (!validMoves(move.getStartPosition()).contains(move)) {
             throw new InvalidMoveException("Invalid move!");
         }
-
-
+        // Make the move
+        ChessPiece piece = gameBoard.getPiece(move.getStartPosition());
+        gameBoard.addPiece(move.getEndPosition(), piece);
+        gameBoard.addPiece(move.getStartPosition(), null);
+        // Switch turn
+        switch (teamTurn) {
+            case WHITE -> teamTurn = TeamColor.BLACK;
+            case BLACK -> teamTurn = TeamColor.WHITE;
+            default -> throw new RuntimeException("Switching teams broke");
+        }
     }
 
     /**
@@ -98,12 +108,15 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPos = findKingPosition(teamColor);
+        // Loop through each piece
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
                 //TODO: test if it's necessary to check for the piece being null.
+                // If piece is enemy to the team who's turn it is
                 if (piece != null && piece.getTeamColor() != teamColor) {
                     Collection<ChessMove> moves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
+                    // Check its move set, if any moves match the current king's position, it is in check
                     for (ChessMove move : moves) {
                         if (move.getEndPosition().equals(kingPos)) {
                             return true;
@@ -122,7 +135,26 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // If not in check, then cannot be in checkmate
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+        // Check each piece
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPosition currPos = new ChessPosition(i + 1, j + 1);
+                ChessPiece piece = gameBoard.getPiece(currPos);
+                // If it's the piece's turn, check its move set
+                if (piece != null && piece.getTeamColor() == teamTurn) {
+                    Collection<ChessMove> moves = validMoves(currPos);
+                    // If there are valid moves, then it cannot be checkmate
+                    if (!moves.isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -133,7 +165,26 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // If in check, cannot be stalemate
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+        // Check each piece
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPosition currPos = new ChessPosition(i + 1, j + 1);
+                ChessPiece piece = gameBoard.getPiece(currPos);
+                // If it's the piece's turn, check its move set
+                if (piece != null && piece.getTeamColor() == teamTurn) {
+                    Collection<ChessMove> moves = validMoves(currPos);
+                    // If there are valid moves, then it cannot be stalemate
+                    if (!moves.isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
