@@ -54,9 +54,12 @@ public class ChessGame {
         ChessPiece piece = gameBoard.getPiece(startPosition);
         //TODO: Determine if this function should honor who's turn it is or not. Does it do as it says on github in its desc or in pieceMoves' desc.
         // If there is no piece or if it's not the piece's turn
-        if (piece == null || piece.getTeamColor() != teamTurn) {
+        if (piece == null) { // This code used to be here to account for team turn '|| piece.getTeamColor() != teamTurn'
             return new HashSet<>(); //TODO: this used to return null, but that threw an error, find out what went wrong here.
         }
+        //TODO: I think this function should return an empty set instead of null when there is no piece there
+        // unlike what is said in the instructions. Also, this function should not respect who's turn it is, also
+        // unlike the instructions say.
 
         Collection<ChessMove> moves = piece.pieceMoves(gameBoard, startPosition);
         Set<ChessMove> validMoveSet = new HashSet<>();
@@ -90,6 +93,10 @@ public class ChessGame {
         }
         // Make the move
         ChessPiece piece = gameBoard.getPiece(move.getStartPosition());
+        // If there is a promotion, make it happen
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(gameBoard.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
+        }
         gameBoard.addPiece(move.getEndPosition(), piece);
         gameBoard.addPiece(move.getStartPosition(), null);
         // Switch turn
