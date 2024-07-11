@@ -62,7 +62,14 @@ public class PawnMovesCalculator implements MoveCalculator {
         return possibleMoves;
     }
 
-    // Check if a position is on the board (uses 0-based indexing)
+    /**
+     * Helper function. Check if a position is
+     * on the board
+     *
+     * @param row row index (0-based)
+     * @param col column index (0-based)
+     * @return true if on the board
+     */
     private boolean isValid(int row, int col) {
         return row >= 0 && row < 8 && col >= 0 && col < 8;
     }

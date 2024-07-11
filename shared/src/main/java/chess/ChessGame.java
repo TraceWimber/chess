@@ -116,7 +116,7 @@ public class ChessGame {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
-                // If piece is enemy to the team who's turn it is
+                // If piece is enemy to the team whose turn it is
                 if (piece != null && piece.getTeamColor() != teamColor) {
                     Collection<ChessMove> moves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
                     // Check its move set, if any moves match the current king's position, it is in check
@@ -208,7 +208,13 @@ public class ChessGame {
         return gameBoard;
     }
 
-    // Helper function that returns the location of the given team's King
+    /**
+     * Helper function. Locates the King's position
+     * on the board
+     *
+     * @param teamColor which team color's king to find
+     * @return the king's position of the given color
+     */
     private ChessPosition findKingPosition(TeamColor teamColor) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
