@@ -13,11 +13,13 @@ import java.util.Set;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard gameBoard;
+    private ChessMove lastMove;
 
     public ChessGame() {
         teamTurn = TeamColor.WHITE;
         gameBoard = new ChessBoard();
         gameBoard.resetBoard();
+        lastMove = null;
     }
 
     /**
@@ -116,11 +118,12 @@ public class ChessGame {
             gameBoard.addPiece(move.getStartPosition(), null);
         }
 
-        // Set movement flags
+        // Set movement flags and save last move
         piece.hasMoved();
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             piece.setJustMovedTwo(Math.abs(move.getStartPosition().getRow() - move.getEndPosition().getRow()) == 2);
         }
+        lastMove = move;
 
         // Switch turn
         switch (teamTurn) {
@@ -384,26 +387,17 @@ public class ChessGame {
 
     private Collection<ChessMove> getEnPassantMoves(ChessPosition position, ChessPiece pawn) {
         Set<ChessMove> moves = new HashSet<>();
-        int row = position.getRow();
         int col = position.getColumn();
         int moveDir = pawn.getTeamColor() == TeamColor.WHITE ? 1 : -1;
 
-        if (col > 1) {
-            ChessPiece leftPawn = gameBoard.getPiece(new ChessPosition(row, col - 1));
-            if (leftPawn != null &&
-                    leftPawn.getPieceType() == ChessPiece.PieceType.PAWN &&
-                    leftPawn.getTeamColor() != pawn.getTeamColor() &&
-                    leftPawn.justMovedTwo()) {
-                moves.add(new ChessMove(position, new ChessPosition(row + moveDir, col - 1), null));
-            }
+        if (lastMove == null) {
+            return moves;
         }
-        if (col < 8) {
-            ChessPiece rightPawn = gameBoard.getPiece(new ChessPosition(row, col + 1));
-            if (rightPawn != null &&
-                    rightPawn.getPieceType() == ChessPiece.PieceType.PAWN &&
-                    rightPawn.getTeamColor() != pawn.getTeamColor() &&
-                    rightPawn.justMovedTwo()) {
-                moves.add(new ChessMove(position, new ChessPosition(row + moveDir, col + 1), null));
+
+        ChessPiece lastMovedPiece = gameBoard.getPiece(lastMove.getEndPosition());
+        if (lastMovedPiece.getPieceType() == ChessPiece.PieceType.PAWN && Math.abs(lastMove.getStartPosition().getRow() - lastMove.getEndPosition().getRow()) == 2) {
+            if (lastMove.getEndPosition().getColumn() == col - 1 || lastMove.getEndPosition().getColumn() == col + 1) {
+                moves.add(new ChessMove(position, new ChessPosition(position.getRow() + moveDir, lastMove.getEndPosition().getColumn()), null));
             }
         }
 
