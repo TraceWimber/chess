@@ -355,13 +355,13 @@ public class ChessGame {
 
     //helper function to check if a space is safe
     private boolean isSafe(ChessPosition targetPos, TeamColor team) {
-        for (int i = 0; i < 7; i++) {
-            for (int j = 0; j < 7; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
                 if (piece != null && piece.getTeamColor() != team) {
                     Collection<ChessMove> moves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
                     for (ChessMove move : moves) {
-                        if (move.getEndPosition() == targetPos) {
+                        if (move.getEndPosition().equals(targetPos)) {
                             return false;
                         }
                     }
