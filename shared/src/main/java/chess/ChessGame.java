@@ -119,7 +119,7 @@ public class ChessGame {
         }
 
         // Set movement flags and save last move
-        piece.hasMoved();
+        piece.setHasMoved();
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             piece.setJustMovedTwo(Math.abs(move.getStartPosition().getRow() - move.getEndPosition().getRow()) == 2);
         }
