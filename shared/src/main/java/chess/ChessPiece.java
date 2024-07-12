@@ -13,10 +13,14 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
+    private boolean hasMoved;
+    private boolean justMovedTwo;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        hasMoved = false;
+        justMovedTwo = false;
     }
 
     /**
@@ -43,6 +47,34 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return type;
+    }
+
+    /**
+     * @return true if the piece has moved this game
+     */
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    /**
+     * marks the piece as having moved
+     */
+    public void setHasMoved() {
+        hasMoved = true;
+    }
+
+    /**
+     * @return true if the piece just moved two spaces (pawns only)
+     */
+    public boolean justMovedTwo() {
+        return justMovedTwo;
+    }
+
+    /**
+     * updates whether this piece just moved two spaces (pawns only)
+     */
+    public void setJustMovedTwo(boolean hasMovedTwo) {
+        justMovedTwo = hasMovedTwo;
     }
 
     /**
