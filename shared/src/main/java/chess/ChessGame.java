@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+
+//TODO: Add in better documentation for funcs handling special moves
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -77,7 +80,7 @@ public class ChessGame {
             gameBoard.addPiece(move.getEndPosition(), targetPiece);
         }
 
-        //TODO: Add in special move sets here!!
+        // Handle special move sets (Castling/En Passant)
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             validMoveSet.addAll(getCastlingMoves(startPosition, piece));
         }
@@ -101,15 +104,13 @@ public class ChessGame {
         }
         // Make the move
         ChessPiece piece = gameBoard.getPiece(move.getStartPosition());
-        //TODO: Add in logic to make special moves happen here!!
-        // make sure to account for if pieces have moved already.
-        if (isCastlingMove(move, piece)) {
+        if (isCastlingMove(move, piece)) { // Castling
             makeCastlingMove(move);
         }
-        else if (isEnPassantMove(move, piece)) {
+        else if (isEnPassantMove(move, piece)) { // En Passant
             makeEnPassantMove(move);
         }
-        else {
+        else { // All other moves
             // If there is a promotion, make it happen
             if (move.getPromotionPiece() != null) {
                 piece = new ChessPiece(gameBoard.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
