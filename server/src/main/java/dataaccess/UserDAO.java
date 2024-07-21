@@ -7,8 +7,10 @@ public interface UserDAO {
      * Create a new user in the db
      *
      * @param userData UserData object containing the new user
+     * @return True if successful
+     * @throws DataAccessException If attempting to create an already existing user
      */
-    void createUser(UserData userData);
+    boolean createUser(UserData userData) throws DataAccessException;
 
     /**
      * Gets the given player's info from the db

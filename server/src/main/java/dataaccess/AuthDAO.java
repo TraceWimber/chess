@@ -6,15 +6,16 @@ public interface AuthDAO {
     /**
      * Create a new authToken for given user
      *
-     * @param username String name of user
-     * @return AuthData object
+     * @param authData AuthData object containing new user authentication
+     * @return True if successful
+     * @throws DataAccessException If the AuthData already exists in the db
      */
-    AuthData createAuth(String username);
+    boolean createAuth(AuthData authData) throws DataAccessException;
 
     /**
      * Find AuthData containing given authToken
      *
-     * @param authToken authorization to search for
+     * @param authToken Authorization to search for
      * @return AuthData object or null if not found
      */
     AuthData getAuth(String authToken);
@@ -22,9 +23,10 @@ public interface AuthDAO {
     /**
      * Delete given authorization from db
      *
-     * @param authToken authorization to delete
+     * @param authToken Authorization to delete
+     * @throws DataAccessException If given authToken doesn't exist in the db
      */
-    void deleteAuth(String authToken);
+    void deleteAuth(String authToken) throws DataAccessException;
 
     /**
      * Clear all AuthData from db

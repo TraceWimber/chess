@@ -1,17 +1,16 @@
 package dataaccess;
 
 import model.GameData;
-
-import java.util.Set;
+import java.util.Map;
 
 public interface GameDAO {
     /**
      * Create a new chess game in the db
      *
-     * @param gameName String containing name for the game
-     * @return new GameData object
+     * @param gameData GameData object containing the new game
+     * @return True if successful
      */
-    GameData createGame(String gameName);
+    boolean createGame(GameData gameData);
 
     /**
      * Find a game in the db
@@ -24,18 +23,18 @@ public interface GameDAO {
     /**
      * Get list of all games in db
      *
-     * @return Set of all games
+     * @return Map of all games
      */
-    Set<GameData> listGames();
+    Map<Integer,GameData> listGames();
 
     /**
      * Adds given player to a game or makes a move for that player
      *
-     * @param gameID int ID of the game to update
-     * @param username String name of player
-     * @return updated GameData object
+     * @param gameData GameData object containing the updated game
+     * @return True if successful
+     * @throws DataAccessException If attempting to update a game that doesn't exist
      */
-    GameData updateGame(int gameID, String username);
+    boolean updateGame(GameData gameData) throws DataAccessException;
 
     /**
      * Clear all GameData from db
