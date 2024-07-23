@@ -9,6 +9,10 @@ public class MemoryUserDAO implements UserDAO {
 
     private Set<UserData> db;
 
+    public MemoryUserDAO() {
+        db = new HashSet<>();
+    }
+
     @Override
     public boolean createUser(UserData userData) throws DataAccessException {
         if (getUser(userData.username()) == null) return db.add(userData);

@@ -1,21 +1,23 @@
 package dataaccess;
 
 import model.GameData;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 public class MemoryGameDAO implements GameDAO {
 
-    private Map<Integer,GameData> db;
+    private ArrayList<GameData> db;
+
+    public MemoryGameDAO() {
+        db = new ArrayList<>();
+    }
 
     @Override
     public boolean createGame(GameData gameData) {
-        //TODO: decide if I should allow duplicate games with different IDs
-        if (db.containsKey(gameData.gameID())) {
-            return false;
+        if (gameData.gameID() == db.size()) {
+            db.add(gameData);
+            return true;
         }
-        db.put(gameData.gameID(), gameData);
-        return true;
+        return false;
     }
 
     @Override
@@ -24,14 +26,14 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public Map<Integer,GameData> listGames() {
+    public ArrayList<GameData> listGames() {
         return db;
     }
 
     @Override
     public boolean updateGame(GameData gameData) throws DataAccessException {
-        if (db.containsKey(gameData.gameID())) {
-            db.put(gameData.gameID(), gameData);
+        if (gameData.gameID() < db.size()) {
+            db.set(gameData.gameID(), gameData);
             return true;
         }
         throw new DataAccessException("Cannot Update. Game does not exist.");
@@ -39,6 +41,6 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void clear() {
-        db = new HashMap<>();
+        db = new ArrayList<>();
     }
 }

@@ -1,7 +1,7 @@
 package dataaccess;
 
+import java.util.ArrayList;
 import model.GameData;
-import java.util.Map;
 
 public interface GameDAO {
     /**
@@ -25,7 +25,7 @@ public interface GameDAO {
      *
      * @return Map of all games
      */
-    Map<Integer,GameData> listGames();
+    ArrayList<GameData> listGames();
 
     /**
      * Adds given player to a game or makes a move for that player

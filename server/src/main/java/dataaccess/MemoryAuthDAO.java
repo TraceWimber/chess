@@ -8,6 +8,10 @@ public class MemoryAuthDAO implements AuthDAO {
 
     private Set<AuthData> db;
 
+    public MemoryAuthDAO() {
+        db = new HashSet<>();
+    }
+
     @Override
     public boolean createAuth(AuthData authData) throws DataAccessException {
         if (getAuth(authData.authToken()) == null) return db.add(authData);
