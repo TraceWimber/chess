@@ -31,12 +31,13 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public boolean updateGame(GameData gameData) throws DataAccessException {
+    public void updateGame(GameData gameData) throws DataAccessException {
         if (gameData.gameID() < db.size()) {
             db.set(gameData.gameID(), gameData);
-            return true;
         }
-        throw new DataAccessException("Cannot Update. Game does not exist.");
+        else {
+            throw new DataAccessException("Error: Cannot Update. Game does not exist.");
+        }
     }
 
     @Override

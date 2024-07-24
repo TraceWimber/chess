@@ -15,7 +15,7 @@ public class MemoryAuthDAO implements AuthDAO {
     @Override
     public boolean createAuth(AuthData authData) throws DataAccessException {
         if (getAuth(authData.authToken()) == null) return db.add(authData);
-        throw new DataAccessException("Cannot create auth. User is already authenticated.");
+        throw new DataAccessException("Error: Cannot create auth. User is already authenticated.");
     }
 
     @Override
@@ -32,7 +32,7 @@ public class MemoryAuthDAO implements AuthDAO {
         if (authData != null) {
             db.remove(authData);
         }
-        else throw new DataAccessException("Cannot delete auth. Auth data not found.");
+        else throw new DataAccessException("Error: Cannot delete auth. Auth data not found.");
     }
 
     @Override

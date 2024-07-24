@@ -23,7 +23,7 @@ public interface GameDAO {
     /**
      * Get list of all games in db
      *
-     * @return Map of all games
+     * @return List of all games
      */
     ArrayList<GameData> listGames();
 
@@ -31,10 +31,9 @@ public interface GameDAO {
      * Adds given player to a game or makes a move for that player
      *
      * @param gameData GameData object containing the updated game
-     * @return True if successful
      * @throws DataAccessException If attempting to update a game that doesn't exist
      */
-    boolean updateGame(GameData gameData) throws DataAccessException;
+    void updateGame(GameData gameData) throws DataAccessException;
 
     /**
      * Clear all GameData from db

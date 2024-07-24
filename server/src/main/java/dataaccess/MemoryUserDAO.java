@@ -16,7 +16,7 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public boolean createUser(UserData userData) throws DataAccessException {
         if (getUser(userData.username()) == null) return db.add(userData);
-        throw new DataAccessException("Attempted Create, but user already exists.");
+        throw new DataAccessException("Error: Attempted Create, but user already exists.");
     }
 
     @Override
