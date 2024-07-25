@@ -30,8 +30,6 @@ public class GameServiceTests {
         testGameDAO = new MemoryGameDAO();
     }
 
-    //TODO: write tests for the rest of the gameService functions.
-
     //------------LIST GAMES positive & negative tests---------------
     @Test
     @DisplayName("List Games Works")

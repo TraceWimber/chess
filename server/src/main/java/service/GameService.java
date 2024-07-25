@@ -4,7 +4,6 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
-
 import java.util.ArrayList;
 
 public class GameService extends Service {
