@@ -2,8 +2,10 @@ package server;
 
 import handler.Handler;
 import spark.*;
+import com.google.gson.Gson;
 
 public class Server {
+    private static final Gson gson = new Gson();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -20,12 +22,15 @@ public class Server {
         Spark.delete("/db", Handler.handleClear);
 
         Spark.exception(Exception.class, (exception, request, response) -> {
-            response.status(500);
-            response.body("Internal Server Error");
+            String msg = exception.getMessage();
+            switch (msg) {
+                case "Error: Username/Password is required." -> response.status(400);
+                case "Error: User already exists under that name." -> response.status(403);
+                default -> response.status(500);
+            }
+            response.type("application/json");
+            response.body(gson.toJson(new ErrorResponse(msg)));
         });
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        //Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -34,5 +39,17 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    private static class ErrorResponse {
+        private final String message;
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 }

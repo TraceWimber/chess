@@ -16,6 +16,7 @@ public class UserService extends Service {
      * @return AuthData For this user's session
      */
     public AuthData register(UserData userData) throws DataAccessException, BadRequestException {
+        if (userData.username() == null || userData.password() == null) throw new BadRequestException("Error: Username/Password is required.");
         UserData user = userDAO.getUser(userData.username());
         if (user != null) throw new BadRequestException("Error: User already exists under that name.");
         if (userDAO.createUser(userData)) {
