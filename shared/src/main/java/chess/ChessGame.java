@@ -131,28 +131,12 @@ public class ChessGame {
         }
     }
 
-    /**
-     * Determines if the given team is in check
-     *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
-     */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPos = findKingPosition(teamColor);
-        // Loop through each piece
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
-                // If piece is enemy to the team whose turn it is
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> moves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
-                    // Check its move set, if any moves match the current king's position, it is in check
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPos)) {
-                            return true;
-                        }
-                    }
-                }
+        Collection<ChessMove> opponentMoves = getEnemyMoves(teamColor);
+        for (ChessMove move : opponentMoves) {
+            if (move.getEndPosition().equals(kingPos)) {
+                return true;
             }
         }
         return false;
@@ -381,20 +365,44 @@ public class ChessGame {
      * @return true if the space is safe
      */
     private boolean isSafe(ChessPosition targetPos, TeamColor team) {
+        Collection<ChessMove> opponentMoves = getEnemyMoves(team);
+        return !isPositionUnderAttack(targetPos, opponentMoves);
+    }
+
+    /**
+     * Helper function. Gets a collection of all possible enemy moves.
+     *
+     * @param team the color of the team who turn it is currently
+     * @return Collection of all the opponent's moves
+     */
+    private Collection<ChessMove> getEnemyMoves(TeamColor team) {
+        Collection<ChessMove> enemyMoves = new HashSet<>();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece piece = gameBoard.getPiece(new ChessPosition(i + 1, j + 1));
                 if (piece != null && piece.getTeamColor() != team) {
-                    Collection<ChessMove> moves = piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1));
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(targetPos)) {
-                            return false;
-                        }
-                    }
+                    enemyMoves.addAll(piece.pieceMoves(gameBoard, new ChessPosition(i + 1, j + 1)));
                 }
             }
         }
-        return true;
+        return enemyMoves;
+    }
+
+    /**
+     * Helper function. Checks if an enemy can
+     * move into the given position
+     *
+     * @param targetPos the position being moved into
+     * @param enemyMoves a collection of all enemy moves
+     * @return true if the enemy can move into the target position
+     */
+    private boolean isPositionUnderAttack(ChessPosition targetPos, Collection<ChessMove> enemyMoves) {
+        for (ChessMove move : enemyMoves) {
+            if (move.getEndPosition().equals(targetPos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
