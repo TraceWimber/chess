@@ -3,7 +3,6 @@ package service;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-
 import java.util.Objects;
 import java.util.UUID;
 
@@ -17,8 +16,10 @@ public class UserService extends Service {
      */
     public AuthData register(UserData userData) throws DataAccessException, BadRequestException {
         if (userData.username() == null || userData.password() == null) throw new BadRequestException("Error: Username/Password is required.");
+
         UserData user = userDAO.getUser(userData.username());
         if (user != null) throw new BadRequestException("Error: User already exists under that name.");
+
         if (userDAO.createUser(userData)) {
             String authToken = UUID.randomUUID().toString();
             AuthData newAuth = new AuthData(authToken, userData.username());
@@ -36,12 +37,16 @@ public class UserService extends Service {
      */
     public AuthData login(UserData userData) throws BadRequestException, DataAccessException {
         if (userData.username() == null || userData.password() == null) throw new BadRequestException("Error: Username/Password is required.");
+
         UserData user = userDAO.getUser(userData.username());
         if (user == null) throw new BadRequestException("Error: Incorrect password and/or username.");
+
         if (!Objects.equals(user.password(), userData.password())) throw new BadRequestException("Error: Incorrect password and/or username.");
+
         String authToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData(authToken, userData.username());
         if (authDAO.createAuth(newAuth)) return newAuth;
+
         throw new DataAccessException("Error: Failed to create authentication.");
     }
 

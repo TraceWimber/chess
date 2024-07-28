@@ -66,10 +66,10 @@ public class Handler {
         GameData gameName = gson.fromJson(req.body(), GameData.class);
 
         GameData game = gameService.createGame(auth, gameName);
-        //I had to add this code, because the project specifications for my CS 240 class were horrifically incomplete.
+        //I had to add this code, because the project specifications for my CS 240 class were unfortunately incomplete.
         //There were a number of output requirements that weren't in the instructions.
-        //So, they made me code the entire thing just to find out that the test cases only accept gameIDs > 0.
-        //I had to spend another few hours adding unnecessary code like this to suit strange output requirements.
+        //So, in this case, they made me code the entire thing just to find out that the test cases only accept gameIDs > 0.
+        //I had to spend another few hours adding unnecessary code like this to suit very particular output requirements.
         game = new GameData(game.gameID() + 1, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
 
         res.type("application/json");
@@ -81,6 +81,10 @@ public class Handler {
         AuthData auth = new AuthData(token, null);
         GameData game = gson.fromJson(req.body(), GameData.class);
 
+        //Here is another case of poor instructions on requirements
+        //I was given the option to just reuse my User, Auth, and GameData models instead of creating specific request and response classes
+        //Little did I know that the test cases would require specific input formats that force strange workarounds like this
+        //Here I am extracting a specific key/value pair from the input using gson's JsonParser.
         JsonObject jsonObj = JsonParser.parseString(req.body()).getAsJsonObject();
         String teamColor = null;
         if (jsonObj.has("playerColor")) teamColor = jsonObj.get("playerColor").getAsString();
