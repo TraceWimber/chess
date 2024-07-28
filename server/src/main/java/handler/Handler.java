@@ -1,15 +1,19 @@
 package handler;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import service.BadRequestException;
 import service.GameService;
 import service.UserService;
 import spark.Route;
 import spark.Response;
 import spark.Request;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Handler {
 
@@ -45,7 +49,12 @@ public class Handler {
     public static Route handleList = (Request req, Response res) -> {
         String token = req.headers("authorization");
         AuthData auth = new AuthData(token, null);
-        ArrayList<GameData> games = gameService.listGames(auth);
+        ArrayList<GameData> gamesArray = new ArrayList<>();
+        //See my notes in handleCreate()...
+        for (GameData game : gameService.listGames(auth)) {
+            gamesArray.add(new GameData(game.gameID() + 1, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
+        }
+        Games games = new Games(gamesArray);
 
         res.type("application/json");
         return gson.toJson(games);
@@ -57,19 +66,36 @@ public class Handler {
         GameData gameName = gson.fromJson(req.body(), GameData.class);
 
         GameData game = gameService.createGame(auth, gameName);
+        //I had to add this code, because the project specifications for my CS 240 class were horrifically incomplete.
+        //There were a number of output requirements that weren't in the instructions.
+        //So, they made me code the entire thing just to find out that the test cases only accept gameIDs > 0.
+        //I had to spend another few hours adding unnecessary code like this to suit strange output requirements.
+        game = new GameData(game.gameID() + 1, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
 
         res.type("application/json");
-        //TODO: Do I need to change this so that it only returns the gameID and not the whole GameData?
         return gson.toJson(game);
     };
 
     public static Route handleJoin = (Request req, Response res) -> {
         String token = req.headers("authorization");
         AuthData auth = new AuthData(token, null);
-        //TODO: finish this one once I know if I will be forced to use custom req/res classes.
+        GameData game = gson.fromJson(req.body(), GameData.class);
+
+        JsonObject jsonObj = JsonParser.parseString(req.body()).getAsJsonObject();
+        String teamColor = null;
+        if (jsonObj.has("playerColor")) teamColor = jsonObj.get("playerColor").getAsString();
+        if (Objects.equals(teamColor, "WHITE")) {
+            game = new GameData(game.gameID(), teamColor, null, null, null);
+        } else if (Objects.equals(teamColor, "BLACK")) {
+            game = new GameData(game.gameID(), null, teamColor, null, null);
+        } else throw new BadRequestException("Error: Please provide valid team color.");
+
+        //See my notes in handleCreate()...
+        game = new GameData(game.gameID() - 1, game.whiteUsername(), game.blackUsername(), null, null);
+        gameService.joinGame(auth, game);
 
         res.type("application/json");
-        return null;
+        return "{}";
     };
 
     public static Route handleClear = (Request req, Response res) -> {

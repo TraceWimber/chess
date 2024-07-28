@@ -21,6 +21,7 @@ public class UserServiceTests {
     @BeforeEach
     public void setup() throws Exception {
         userService = new UserService();
+        userService.clear();
         userService.userDAO.createUser(user1);
         userService.userDAO.createUser(user2);
         userService.authDAO.createAuth(authUser1);

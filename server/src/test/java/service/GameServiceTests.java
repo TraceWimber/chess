@@ -19,15 +19,17 @@ public class GameServiceTests {
         game1 = new GameData(0, null, null, "Game1", new ChessGame());
         game2 = new GameData(1, null, null, "Game2", new ChessGame());
         user1 = new AuthData("1234", "player1");
+        testGameDAO = new MemoryGameDAO();
     }
 
     @BeforeEach
     public void setup() throws Exception {
         gameService = new GameService();
+        gameService.authDAO.clear();
         gameService.authDAO.createAuth(user1);
         gameService.gameDAO.createGame(game1);
         gameService.gameDAO.createGame(game2);
-        testGameDAO = new MemoryGameDAO();
+        testGameDAO.clear();
     }
 
     //------------LIST GAMES positive & negative tests---------------
@@ -95,8 +97,8 @@ public class GameServiceTests {
     //------------CLEAR test---------------
     @Test
     @DisplayName("Testing Clear")
-    public void clearGames() throws Exception {
+    public void clearGames() {
         gameService.clear();
-        Assertions.assertEquals(testGameDAO.listGames(), gameService.listGames(user1));
+        Assertions.assertEquals(testGameDAO.listGames(), gameService.gameDAO.listGames());
     }
 }
