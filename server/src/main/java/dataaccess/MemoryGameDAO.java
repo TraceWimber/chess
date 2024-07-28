@@ -13,7 +13,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     public static MemoryGameDAO getInstance() {
-        if (instance == null) instance = new MemoryGameDAO();
+        if (instance == null) {instance = new MemoryGameDAO();}
         return instance;
     }
 
@@ -28,7 +28,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-        if (gameID >= db.size() || gameID < 0) throw new DataAccessException("Error: Invalid game ID.");
+        if (gameID >= db.size() || gameID < 0) {throw new DataAccessException("Error: Invalid game ID.");}
         return db.get(gameID);
     }
 

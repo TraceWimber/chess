@@ -64,13 +64,6 @@ public class ChessPiece {
     }
 
     /**
-     * @return true if the piece just moved two spaces (pawns only)
-     */
-    public boolean justMovedTwo() {
-        return justMovedTwo;
-    }
-
-    /**
      * updates whether this piece just moved two spaces (pawns only)
      */
     public void setJustMovedTwo(boolean hasMovedTwo) {
@@ -99,8 +92,8 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ChessPiece that)) return false;
+        if (this == o) {return true;}
+        if (!(o instanceof ChessPiece that)) {return false;}
         return pieceColor == that.pieceColor && type == that.type;
     }
 

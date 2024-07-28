@@ -28,12 +28,12 @@ public class GameService extends Service {
      */
     public GameData createGame(AuthData authData, GameData gameData) throws BadRequestException {
         String user = authenticate(authData.authToken());
-        if (gameData.gameName() == null) throw new BadRequestException("Error: Game name is required.");
+        if (gameData.gameName() == null) {throw new BadRequestException("Error: Game name is required.");}
         int id = gameDAO.listGames().size();
 
         // Create new GameData and check that addition to db is successful
         GameData newGame = new GameData(id, null, null, gameData.gameName(), new ChessGame());
-        if (gameDAO.createGame(newGame)) return newGame;
+        if (gameDAO.createGame(newGame)) {return newGame;}
 
         throw new BadRequestException("Error: Creating a game failed.");
     }
@@ -49,7 +49,7 @@ public class GameService extends Service {
         String user = authenticate(authData.authToken());
         GameData game = gameDAO.getGame(gameData.gameID());
 
-        if (game == null) throw new BadRequestException("Error: Unable to join. Game does not exist.");
+        if (game == null) {throw new BadRequestException("Error: Unable to join. Game does not exist.");}
 
         if (gameData.whiteUsername() != null) {
             // If slot is empty, perform the join
@@ -87,7 +87,7 @@ public class GameService extends Service {
      */
     private String authenticate(String token) throws BadRequestException {
         AuthData authData = authDAO.getAuth(token);
-        if (authData != null) return authData.username();
+        if (authData != null) {return authData.username();}
         throw new BadRequestException("Error: Unauthorized.");
     }
 }

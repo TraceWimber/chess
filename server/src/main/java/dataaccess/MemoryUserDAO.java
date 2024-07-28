@@ -15,20 +15,20 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     public static MemoryUserDAO getInstance() {
-        if (instance == null) instance = new MemoryUserDAO();
+        if (instance == null) {instance = new MemoryUserDAO();}
         return instance;
     }
 
     @Override
     public boolean createUser(UserData userData) throws DataAccessException {
-        if (getUser(userData.username()) == null) return db.add(userData);
+        if (getUser(userData.username()) == null) {return db.add(userData);}
         throw new DataAccessException("Error: Attempted Create, but user already exists.");
     }
 
     @Override
     public UserData getUser(String username) {
         for (UserData user : db) {
-            if (user.username().equals(username)) return user;
+            if (user.username().equals(username)) {return user;}
         }
         return null;
     }

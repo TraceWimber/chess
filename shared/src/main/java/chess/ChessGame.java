@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-
-//TODO: Add in better documentation for funcs handling special moves
-
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -173,9 +170,9 @@ public class ChessGame {
             return false;
         }
         // Check each piece
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPosition currPos = new ChessPosition(i + 1, j + 1);
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPosition currPos = new ChessPosition(row + 1, col + 1);
                 ChessPiece piece = gameBoard.getPiece(currPos);
                 // If it's the piece's turn, check its move set
                 if (piece != null && piece.getTeamColor() == teamTurn) {
@@ -305,7 +302,14 @@ public class ChessGame {
         }
     }
 
-    //helper function to get castling moves
+    /**
+     * Helper function. Gets all
+     * the possible castling moves
+     *
+     * @param position the position of the king
+     * @param king the king piece in question
+     * @return Collection of all possible castling moves
+     */
     private Collection<ChessMove> getCastlingMoves(ChessPosition position, ChessPiece king) {
         Set<ChessMove> moves = new HashSet<>();
         if (king.hasMoved() || isInCheck(king.getTeamColor())) {
@@ -322,7 +326,14 @@ public class ChessGame {
         return moves;
     }
 
-    //helper function to determine if king-side castling is possible; takes in 1-based row
+    /**
+     * Helper function. Determines if king-side
+     * castling is possible
+     *
+     * @param row the move being checked (1-based)
+     * @param team the king's team color
+     * @return true if the king-side castle is possible
+     */
     private boolean canCastleKingside(int row, TeamColor team) {
         ChessPiece piece = gameBoard.getPiece(new ChessPosition(row, 8));
         if (piece != null && piece.getPieceType() == ChessPiece.PieceType.ROOK) {
@@ -337,7 +348,14 @@ public class ChessGame {
         return false;
     }
 
-    //helper function to determine if queen-side castling is possible; takes in 1-based row
+    /**
+     * Helper function. Determines if queen-side
+     * castling is possible
+     *
+     * @param row the move being checked (1-based)
+     * @param team the king's team color
+     * @return true if the queen-side castle is possible
+     */
     private boolean canCastleQueenside(int row, TeamColor team) {
         ChessPiece piece = gameBoard.getPiece(new ChessPosition(row, 1));
         if (piece != null && piece.getPieceType() == ChessPiece.PieceType.ROOK) {
@@ -354,7 +372,14 @@ public class ChessGame {
         return false;
     }
 
-    //helper function to check if a space is safe
+    /**
+     * Helper function. Determines if a space
+     * is safe to move into
+     *
+     * @param targetPos the position being moved into
+     * @param team the color of the team who turn it is currently
+     * @return true if the space is safe
+     */
     private boolean isSafe(ChessPosition targetPos, TeamColor team) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -372,6 +397,14 @@ public class ChessGame {
         return true;
     }
 
+    /**
+     * Helper function. Determines if the given
+     * move is an en passant move
+     *
+     * @param move the move being checked
+     * @param piece the piece performing the move
+     * @return true if the move is en passant
+     */
     private boolean isEnPassantMove(ChessMove move, ChessPiece piece) {
         if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
             return false;
@@ -379,6 +412,12 @@ public class ChessGame {
         return move.getStartPosition().getColumn() != move.getEndPosition().getColumn() && gameBoard.getPiece(move.getEndPosition()) == null;
     }
 
+    /**
+     * Helper function. Makes an
+     * en passant move
+     *
+     * @param move the move being performed
+     */
     private void makeEnPassantMove(ChessMove move) {
         ChessPiece pawn = gameBoard.getPiece(move.getStartPosition());
         gameBoard.addPiece(move.getEndPosition(), pawn);
@@ -386,6 +425,14 @@ public class ChessGame {
         gameBoard.addPiece(new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn()), null);
     }
 
+    /**
+     * Helper function. Gets all
+     * the en passant moves
+     *
+     * @param position the position of the pawn
+     * @param pawn the pawn in question
+     * @return Collection of all possible en passant moves
+     */
     private Collection<ChessMove> getEnPassantMoves(ChessPosition position, ChessPiece pawn) {
         Set<ChessMove> moves = new HashSet<>();
         int col = position.getColumn();
@@ -396,7 +443,8 @@ public class ChessGame {
         }
 
         ChessPiece lastMovedPiece = gameBoard.getPiece(lastMove.getEndPosition());
-        if (lastMovedPiece.getPieceType() == ChessPiece.PieceType.PAWN && Math.abs(lastMove.getStartPosition().getRow() - lastMove.getEndPosition().getRow()) == 2) {
+        if (lastMovedPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                Math.abs(lastMove.getStartPosition().getRow() - lastMove.getEndPosition().getRow()) == 2) {
             if (lastMove.getEndPosition().getColumn() == col - 1 || lastMove.getEndPosition().getColumn() == col + 1) {
                 moves.add(new ChessMove(position, new ChessPosition(position.getRow() + moveDir, lastMove.getEndPosition().getColumn()), null));
             }

@@ -28,7 +28,7 @@ public class RookMovesCalculator implements MoveCalculator {
                 if (pieceAtPos == null) {
                     possibleMoves.add(new ChessMove(myPosition, currPos, null));
                 } else {
-                    // If there's a piece here, check it's color and add position if enemy, then break
+                    // If there's a piece here, check it's color and if enemy, then break
                     if (!pieceAtPos.getTeamColor().equals(board.getPiece(myPosition).getTeamColor())) {
                         possibleMoves.add(new ChessMove(myPosition, currPos, null));
                     }

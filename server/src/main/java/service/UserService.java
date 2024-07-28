@@ -15,10 +15,10 @@ public class UserService extends Service {
      * @return AuthData For this user's session
      */
     public AuthData register(UserData userData) throws DataAccessException, BadRequestException {
-        if (userData.username() == null || userData.password() == null) throw new BadRequestException("Error: Username/Password is required.");
+        if (userData.username() == null || userData.password() == null) {throw new BadRequestException("Error: Username/Password is required.");}
 
         UserData user = userDAO.getUser(userData.username());
-        if (user != null) throw new BadRequestException("Error: User already exists under that name.");
+        if (user != null) {throw new BadRequestException("Error: User already exists under that name.");}
 
         if (userDAO.createUser(userData)) {
             String authToken = UUID.randomUUID().toString();
@@ -36,16 +36,16 @@ public class UserService extends Service {
      * @return AuthData For this user's session
      */
     public AuthData login(UserData userData) throws BadRequestException, DataAccessException {
-        if (userData.username() == null || userData.password() == null) throw new BadRequestException("Error: Username/Password is required.");
+        if (userData.username() == null || userData.password() == null) {throw new BadRequestException("Error: Username/Password is required.");}
 
         UserData user = userDAO.getUser(userData.username());
-        if (user == null) throw new BadRequestException("Error: Incorrect password and/or username.");
+        if (user == null) {throw new BadRequestException("Error: Incorrect password and/or username.");}
 
-        if (!Objects.equals(user.password(), userData.password())) throw new BadRequestException("Error: Incorrect password and/or username.");
+        if (!Objects.equals(user.password(), userData.password())) {throw new BadRequestException("Error: Incorrect password and/or username.");}
 
         String authToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData(authToken, userData.username());
-        if (authDAO.createAuth(newAuth)) return newAuth;
+        if (authDAO.createAuth(newAuth)) {return newAuth;}
 
         throw new DataAccessException("Error: Failed to create authentication.");
     }
@@ -79,7 +79,7 @@ public class UserService extends Service {
      */
     private String authenticate(String token) throws BadRequestException {
         AuthData authData = authDAO.getAuth(token);
-        if (authData != null) return authData.authToken();
+        if (authData != null) {return authData.authToken();}
         throw new BadRequestException("Error: Unauthorized.");
     }
 }

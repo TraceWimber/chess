@@ -17,24 +17,24 @@ import java.util.Objects;
 
 public class Handler {
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
     private static UserService userService = new UserService();
     private static GameService gameService = new GameService();
 
     public static Route handleRegister = (Request req, Response res) -> {
-        UserData user = gson.fromJson(req.body(), UserData.class);
+        UserData user = GSON.fromJson(req.body(), UserData.class);
         AuthData auth = userService.register(user);
 
         res.type("application/json");
-        return gson.toJson(auth);
+        return GSON.toJson(auth);
     };
 
     public static Route handleLogin = (Request req, Response res) -> {
-        UserData user = gson.fromJson(req.body(), UserData.class);
+        UserData user = GSON.fromJson(req.body(), UserData.class);
         AuthData auth = userService.login(user);
 
         res.type("application/json");
-        return gson.toJson(auth);
+        return GSON.toJson(auth);
     };
 
     public static Route handleLogout = (Request req, Response res) -> {
@@ -57,13 +57,13 @@ public class Handler {
         Games games = new Games(gamesArray);
 
         res.type("application/json");
-        return gson.toJson(games);
+        return GSON.toJson(games);
     };
 
     public static Route handleCreate = (Request req, Response res) -> {
         String token = req.headers("authorization");
         AuthData auth = new AuthData(token, null);
-        GameData gameName = gson.fromJson(req.body(), GameData.class);
+        GameData gameName = GSON.fromJson(req.body(), GameData.class);
 
         GameData game = gameService.createGame(auth, gameName);
         //I had to add this code, because the project specifications for my CS 240 class were unfortunately incomplete.
@@ -73,26 +73,27 @@ public class Handler {
         game = new GameData(game.gameID() + 1, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
 
         res.type("application/json");
-        return gson.toJson(game);
+        return GSON.toJson(game);
     };
 
     public static Route handleJoin = (Request req, Response res) -> {
         String token = req.headers("authorization");
         AuthData auth = new AuthData(token, null);
-        GameData game = gson.fromJson(req.body(), GameData.class);
+        GameData game = GSON.fromJson(req.body(), GameData.class);
 
         //Here is another case of poor instructions on requirements
         //I was given the option to just reuse my User, Auth, and GameData models instead of creating specific request and response classes
         //Little did I know that the test cases would require specific input formats that force strange workarounds like this
-        //Here I am extracting a specific key/value pair from the input using gson's JsonParser.
+        //Here I am extracting a specific key/value pair from the input using GSON's JsonParser.
         JsonObject jsonObj = JsonParser.parseString(req.body()).getAsJsonObject();
         String teamColor = null;
-        if (jsonObj.has("playerColor")) teamColor = jsonObj.get("playerColor").getAsString();
+        if (jsonObj.has("playerColor")) {teamColor = jsonObj.get("playerColor").getAsString();}
+
         if (Objects.equals(teamColor, "WHITE")) {
             game = new GameData(game.gameID(), teamColor, null, null, null);
         } else if (Objects.equals(teamColor, "BLACK")) {
             game = new GameData(game.gameID(), null, teamColor, null, null);
-        } else throw new BadRequestException("Error: Please provide valid team color.");
+        } else {throw new BadRequestException("Error: Please provide valid team color.");}
 
         //See my notes in handleCreate()...
         game = new GameData(game.gameID() - 1, game.whiteUsername(), game.blackUsername(), null, null);

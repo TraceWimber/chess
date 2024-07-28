@@ -5,7 +5,7 @@ import spark.*;
 import com.google.gson.Gson;
 
 public class Server {
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -31,7 +31,7 @@ public class Server {
                 default -> response.status(500);
             }
             response.type("application/json");
-            response.body(gson.toJson(new ErrorResponse(msg)));
+            response.body(GSON.toJson(new ErrorResponse(msg)));
         });
 
         Spark.awaitInitialization();
