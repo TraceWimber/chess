@@ -6,10 +6,16 @@ import java.util.Set;
 
 public class MemoryAuthDAO implements AuthDAO {
 
+    private static MemoryAuthDAO instance;
     private Set<AuthData> db;
 
     public MemoryAuthDAO() {
         db = new HashSet<>();
+    }
+
+    public static MemoryAuthDAO getInstance() {
+        if (instance == null) instance = new MemoryAuthDAO();
+        return instance;
     }
 
     @Override

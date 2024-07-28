@@ -5,10 +5,16 @@ import java.util.ArrayList;
 
 public class MemoryGameDAO implements GameDAO {
 
+    private static MemoryGameDAO instance;
     private ArrayList<GameData> db;
 
     public MemoryGameDAO() {
         db = new ArrayList<>();
+    }
+
+    public static MemoryGameDAO getInstance() {
+        if (instance == null) instance = new MemoryGameDAO();
+        return instance;
     }
 
     @Override

@@ -8,8 +8,8 @@ public class Service {
     protected GameDAO gameDAO;
 
     public Service() {
-        authDAO = new MemoryAuthDAO();
-        userDAO = new MemoryUserDAO();
-        gameDAO = new MemoryGameDAO();
+        authDAO = MemoryAuthDAO.getInstance();
+        userDAO = MemoryUserDAO.getInstance();
+        gameDAO = MemoryGameDAO.getInstance();
     }
 }

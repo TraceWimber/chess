@@ -28,6 +28,7 @@ public class GameService extends Service {
      */
     public GameData createGame(AuthData authData, GameData gameData) throws BadRequestException {
         String user = authenticate(authData.authToken());
+        if (gameData.gameName() == null) throw new BadRequestException("Error: Game name is required.");
         int id = gameDAO.listGames().size();
 
         // Create new GameData and check that addition to db is successful

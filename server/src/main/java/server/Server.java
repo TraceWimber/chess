@@ -24,7 +24,8 @@ public class Server {
         Spark.exception(Exception.class, (exception, request, response) -> {
             String msg = exception.getMessage();
             switch (msg) {
-                case "Error: Username/Password is required." -> response.status(400);
+                case "Error: Username/Password is required.", "Error: Game name is required." -> response.status(400);
+                case "Error: Unauthorized.", "Error: Incorrect password and/or username." -> response.status(401);
                 case "Error: User already exists under that name." -> response.status(403);
                 default -> response.status(500);
             }

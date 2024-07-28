@@ -7,10 +7,16 @@ import java.util.Set;
 
 public class MemoryUserDAO implements UserDAO {
 
+    private static MemoryUserDAO instance;
     private Set<UserData> db;
 
     public MemoryUserDAO() {
         db = new HashSet<>();
+    }
+
+    public static MemoryUserDAO getInstance() {
+        if (instance == null) instance = new MemoryUserDAO();
+        return instance;
     }
 
     @Override

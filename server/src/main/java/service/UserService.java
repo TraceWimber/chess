@@ -35,9 +35,10 @@ public class UserService extends Service {
      * @return AuthData For this user's session
      */
     public AuthData login(UserData userData) throws BadRequestException, DataAccessException {
+        if (userData.username() == null || userData.password() == null) throw new BadRequestException("Error: Username/Password is required.");
         UserData user = userDAO.getUser(userData.username());
-        if (user == null) throw new BadRequestException("Error: Incorrect password or username.");
-        if (!Objects.equals(user.password(), userData.password())) throw new BadRequestException("Error: Incorrect password or username.");
+        if (user == null) throw new BadRequestException("Error: Incorrect password and/or username.");
+        if (!Objects.equals(user.password(), userData.password())) throw new BadRequestException("Error: Incorrect password and/or username.");
         String authToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData(authToken, userData.username());
         if (authDAO.createAuth(newAuth)) return newAuth;
