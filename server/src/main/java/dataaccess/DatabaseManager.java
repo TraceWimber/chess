@@ -43,6 +43,38 @@ public class DatabaseManager {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
+            //added code to create Auth, User, and Game Tables
+            statement = """
+                CREATE TABLE IF NOT EXISTS auth (
+                authToken CHAR(36) NOT NULL,
+                username VARCHAR(255) NOT NULL
+                )""";
+            try (var authTableStatement = conn.prepareStatement(statement)) {
+                authTableStatement.executeUpdate();
+            }
+
+            statement = """
+                CREATE TABLE IF NOT EXISTS user (
+                username VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL
+                )""";
+            try (var authTableStatement = conn.prepareStatement(statement)) {
+                authTableStatement.executeUpdate();
+            }
+
+            statement = """
+                CREATE TABLE IF NOT EXISTS game (
+                gameID INT AUTO_INCREMENT PRIMARY KEY,
+                whiteUsername VARCHAR(255) NOT NULL,
+                blackUsername VARCHAR(255) NOT NULL,
+                gameName VARCHAR(255) NOT NULL,
+                chessGame TEXT NOT NULL
+                )""";
+            try (var authTableStatement = conn.prepareStatement(statement)) {
+                authTableStatement.executeUpdate();
+            }
+
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
