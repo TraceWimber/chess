@@ -1,52 +1,50 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
+
+import java.util.ArrayList;
 
 public class GameServiceTests {
     private static GameService gameService;
     private static GameData game1;
     private static GameData game2;
     private static AuthData user1;
-    private static MemoryGameDAO testGameDAO;
 
     @BeforeAll
     public static void init() {
-        game1 = new GameData(0, null, null, "Game1", new ChessGame());
-        game2 = new GameData(1, null, null, "Game2", new ChessGame());
+        game1 = new GameData(1, null, null, "Game1", new ChessGame());
+        game2 = new GameData(2, null, null, "Game2", new ChessGame());
         user1 = new AuthData("1234", "player1");
-        testGameDAO = new MemoryGameDAO();
     }
 
     @BeforeEach
     public void setup() throws Exception {
         gameService = new GameService();
         gameService.authDAO.clear();
+        gameService.gameDAO.clear();
         gameService.authDAO.createAuth(user1);
         gameService.gameDAO.createGame(game1);
         gameService.gameDAO.createGame(game2);
-        testGameDAO.clear();
     }
 
     //------------LIST GAMES positive & negative tests---------------
     @Test
     @DisplayName("List Games Works")
     public void gamesList() throws Exception {
-        testGameDAO.createGame(game1);
-        testGameDAO.createGame(game2);
-        Assertions.assertEquals(testGameDAO.listGames(), gameService.listGames(user1));
+        ArrayList<GameData> gamesList = new ArrayList<>();
+        gamesList.add(game1);
+        gamesList.add(game2);
+        Assertions.assertEquals(gamesList.get(0).gameName(), gameService.listGames(user1).get(0).gameName());
+        Assertions.assertEquals(gamesList.get(1).gameName(), gameService.listGames(user1).get(1).gameName());
     }
 
     @Test
     @DisplayName("Unauthorized List Games")
     public void gamesListAuth() {
-        testGameDAO.createGame(game1);
-        testGameDAO.createGame(game2);
-
         Executable unauthListGames = () -> gameService.listGames(new AuthData("abcd", "player2"));
 
         Assertions.assertThrows(BadRequestException.class, unauthListGames);
@@ -99,6 +97,7 @@ public class GameServiceTests {
     @DisplayName("Testing Clear")
     public void clearGames() throws Exception {
         gameService.clear();
-        Assertions.assertEquals(testGameDAO.listGames(), gameService.gameDAO.listGames());
+        ArrayList<GameData> gamesList = new ArrayList<>();
+        Assertions.assertEquals(gamesList, gameService.gameDAO.listGames());
     }
 }

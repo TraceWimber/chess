@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -53,17 +52,24 @@ public class UserServiceTests {
     @Test
     @DisplayName("Login Works")
     public void loginUser() throws Exception {
-        AuthData authData = userService.login(user2);
-        Assertions.assertEquals("player2", authData.username());
+        UserData user3 = new UserData("player3", "qwerty", "email");
+        AuthData user3Auth = userService.register(user3);
+        userService.logout(user3Auth);
+        AuthData authData = userService.login(user3);
+        Assertions.assertEquals("player3", authData.username());
         Assertions.assertNotNull(authData.authToken());
     }
 
     @Test
     @DisplayName("Wrong Password")
-    public void badLogin() {
-        UserData wrongPlayer1 = new UserData("player1", "goodbye", null);
+    public void badLogin() throws Exception {
+        UserData user3 = new UserData("player3", "qwerty", "email");
+        AuthData user3Auth = userService.register(user3);
+        userService.logout(user3Auth);
 
-        Executable badPassword = () -> userService.login(wrongPlayer1);
+        UserData wrongPlayer3 = new UserData("player3", "azerty", "email");
+
+        Executable badPassword = () -> userService.login(wrongPlayer3);
 
         Assertions.assertThrows(BadRequestException.class, badPassword);
     }

@@ -3,7 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-import java.util.Objects;
+import org.mindrot.jbcrypt.BCrypt;
 import java.util.UUID;
 
 public class UserService extends Service {
@@ -19,6 +19,9 @@ public class UserService extends Service {
 
         UserData user = userDAO.getUser(userData.username());
         if (user != null) {throw new BadRequestException("Error: User already exists under that name.");}
+
+        // Encrypt user password
+        userData = new UserData(userData.username(), BCrypt.hashpw(userData.password(), BCrypt.gensalt()), userData.email());
 
         if (userDAO.createUser(userData)) {
             String authToken = UUID.randomUUID().toString();
@@ -41,7 +44,12 @@ public class UserService extends Service {
         UserData user = userDAO.getUser(userData.username());
         if (user == null) {throw new BadRequestException("Error: Incorrect password and/or username.");}
 
-        if (!Objects.equals(user.password(), userData.password())) {throw new BadRequestException("Error: Incorrect password and/or username.");}
+        System.out.println("Password being checked: ");
+        System.out.println(userData.password());
+        System.out.println("Password in db: ");
+        System.out.println(user.password());
+
+        if (!BCrypt.checkpw(userData.password(), user.password())) {throw new BadRequestException("Error: Incorrect password and/or username.");}
 
         String authToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData(authToken, userData.username());
