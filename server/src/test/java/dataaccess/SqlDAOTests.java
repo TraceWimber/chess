@@ -4,8 +4,11 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
+import service.BadRequestException;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -13,6 +16,7 @@ public class SqlDAOTests {
 
     private static AuthData userAuth1;
     private static GameData game1;
+    private static UserData user1;
     private static SqlAuthDAO authDAO;
     private static SqlGameDAO gameDAO;
     private static SqlUserDAO userDAO;
@@ -22,6 +26,7 @@ public class SqlDAOTests {
     public static void init() throws Exception {
         userAuth1 = new AuthData("1234", "player1");
         game1 = new GameData(1, "whitePlayer", "blackPlayer", "game 1", new ChessGame());
+        user1 = new UserData("player1", "password", "email@email.com");
         authDAO = new SqlAuthDAO();
         gameDAO = new SqlGameDAO();
         userDAO = new SqlUserDAO();
@@ -335,6 +340,57 @@ public class SqlDAOTests {
 
     //=========================UserDAO=======================
     //------------CREATE USER positive & negative tests---------------
+    @Test
+    @DisplayName("Create User Works")
+    public void createUser() throws Exception {
+        userDAO.createUser(user1);
 
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("SELECT * FROM user WHERE username = ?");
+            pdStmt.setString(1, "player1");
+            var resultSet = pdStmt.executeQuery();
 
+            resultSet.next();
+            String usrname = resultSet.getString("username");
+            String pass = resultSet.getString("password");
+            String email = resultSet.getString("email");
+
+            Assertions.assertEquals("player1", usrname);
+            Assertions.assertEquals("password", pass);
+            Assertions.assertEquals("email@email.com", email);
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("User Already Exists")
+    public void cantCreateUser() throws Exception {
+        userDAO.createUser(user1);
+
+        Executable createFail = () -> userDAO.createUser(user1);
+
+        Assertions.assertThrows(DataAccessException.class, createFail);
+    }
+
+    //------------GET USER positive & negative tests------------------
+    @Test
+    @DisplayName("Get User Works")
+    public void getUser() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("User Doesn't Exist")
+    public void doesNotExist() throws Exception {
+
+    }
+
+    //------------CLEAR test------------------------------------------
+    @Test
+    @DisplayName("Clear Users Works")
+    public void clearUsers() throws Exception {
+
+    }
 }
