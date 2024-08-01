@@ -1,27 +1,30 @@
 package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.*;
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
-
 import java.sql.SQLException;
 
 public class SqlDAOTests {
 
     private static AuthData userAuth1;
+    private static GameData game1;
     private static SqlAuthDAO authDAO;
     private static SqlGameDAO gameDAO;
     private static SqlUserDAO userDAO;
+    private static Gson GSON;
 
     @BeforeAll
     public static void init() throws Exception {
         userAuth1 = new AuthData("1234", "player1");
+        game1 = new GameData(1, "whitePlayer", "blackPlayer", "game 1", new ChessGame());
         authDAO = new SqlAuthDAO();
         gameDAO = new SqlGameDAO();
         userDAO = new SqlUserDAO();
+        GSON = new Gson();
         DatabaseManager.createDatabase();
     }
 
@@ -167,7 +170,131 @@ public class SqlDAOTests {
     }
 
     //=========================GameDAO=======================
+    //------------CREATE GAME positive & negative tests---------------
+    @Test
+    @DisplayName("Create Game Works")
+    public void createGame() throws Exception {
+        gameDAO.createGame(game1);
 
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("SELECT * FROM game");
+            var resultSet = pdStmt.executeQuery();
+
+            resultSet.next();
+            int id = resultSet.getInt("gameID");
+            String white = resultSet.getString("whiteUsername");
+            String black = resultSet.getString("blackUsername");
+            String gameName = resultSet.getString("gameName");
+            String game = resultSet.getString("chessGame");
+            Assertions.assertEquals(1, id);
+            Assertions.assertEquals("whitePlayer", white);
+            Assertions.assertEquals("blackPlayer", black);
+            Assertions.assertEquals("game 1", gameName);
+            String chessGame = GSON.toJson(new ChessGame());
+            Assertions.assertEquals(chessGame, game);
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Cannot Have Duplicate IDs")
+    public void duplicateCreation() throws Exception {
+        GameData game2 = new GameData(1, "player1", "player2", "game2", new ChessGame());
+        gameDAO.createGame(game1);
+        gameDAO.createGame(game2);
+        // game1 and game2 were both initialized with gameID of 1
+
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("SELECT * FROM game WHERE gameID = 1");
+            var resultSet = pdStmt.executeQuery();
+
+            int rowCount = 0;
+            while (resultSet.next()) {
+                rowCount++;
+            }
+            Assertions.assertEquals(1, rowCount);
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    //------------GET GAME positive & negative tests------------------
+    @Test
+    @DisplayName("Get Game Works")
+    public void getGame() throws Exception {
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("INSERT INTO game (whiteUsername, blackUsername, gameName, chessGame) VALUES (?, ?, ?, ?)");
+            pdStmt.setString(1, game1.whiteUsername());
+            pdStmt.setString(2, game1.blackUsername());
+            pdStmt.setString(3, game1.gameName());
+
+            var gameJson = GSON.toJson(game1.game());
+            pdStmt.setString(4, gameJson);
+
+            pdStmt.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        GameData game = gameDAO.getGame(1);
+
+        Assertions.assertEquals(1, game.gameID());
+        Assertions.assertEquals("whitePlayer", game.whiteUsername());
+        Assertions.assertEquals("blackPlayer", game.blackUsername());
+        Assertions.assertEquals("game 1", game.gameName());
+    }
+
+    @Test
+    @DisplayName("Invalid Game ID")
+    public void cannotFindID() throws Exception {
+        gameDAO.createGame(game1);
+
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("SELECT * FROM game WHERE gameID = 5");
+            var resultSet = pdStmt.executeQuery();
+            Assertions.assertFalse(resultSet.isBeforeFirst());
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    //------------LIST GAMES positive & negative tests----------------
+    @Test
+    @DisplayName("List Games Works")
+    public void listGames() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("Cannot List 0 Games")
+    public void emptyList() throws Exception {
+
+    }
+
+    //------------UPDATE GAME positive & negative tests---------------
+    @Test
+    @DisplayName("Update Game Works")
+    public void updateGame() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("Game Doesn't Exist")
+    public void cannotUpdateGame() throws Exception {
+
+    }
+
+    //------------CLEAR test------------------------------------------
+    @Test
+    @DisplayName("Clear Works")
+    public void clearGames() throws Exception {
+
+    }
 
     //=========================UserDAO=======================
 
