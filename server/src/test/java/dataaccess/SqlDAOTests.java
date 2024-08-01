@@ -7,7 +7,6 @@ import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
-import service.BadRequestException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -312,7 +311,7 @@ public class SqlDAOTests {
 
     @Test
     @DisplayName("Game Doesn't Exist")
-    public void cannotUpdateGame() throws Exception {
+    public void cannotUpdateGame() {
         Executable noGame = () -> gameDAO.updateGame(game1);
         Assertions.assertThrows(DataAccessException.class, noGame);
     }
@@ -378,19 +377,40 @@ public class SqlDAOTests {
     @Test
     @DisplayName("Get User Works")
     public void getUser() throws Exception {
-
+        userDAO.createUser(user1);
+        UserData user = userDAO.getUser("player1");
+        Assertions.assertNotNull(user);
+        Assertions.assertEquals(user.username(), user1.username());
+        Assertions.assertEquals(user.password(), user1.password());
+        Assertions.assertEquals(user.email(), user1.email());
     }
 
     @Test
     @DisplayName("User Doesn't Exist")
     public void doesNotExist() throws Exception {
-
+        userDAO.createUser(user1);
+        Assertions.assertNull(userDAO.getUser("player2"));
     }
 
     //------------CLEAR test------------------------------------------
     @Test
     @DisplayName("Clear Users Works")
     public void clearUsers() throws Exception {
+        UserData user2 = new UserData("player2", "guessable", "email");
+        UserData user3 = new UserData("player3", "cheese", "address");
 
+        userDAO.createUser(user1);
+        userDAO.createUser(user2);
+        userDAO.createUser(user3);
+        userDAO.clear();
+
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("SELECT * FROM user");
+            var resultSet = pdStmt.executeQuery();
+            Assertions.assertFalse(resultSet.isBeforeFirst());
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 }
