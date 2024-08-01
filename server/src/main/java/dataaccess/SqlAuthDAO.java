@@ -7,6 +7,7 @@ public class SqlAuthDAO implements AuthDAO {
 
     @Override
     public boolean createAuth(AuthData authData) throws DataAccessException {
+        DatabaseManager.createDatabase();
         AuthData auth = getAuth(authData.authToken());
         if (auth != null) {throw new DataAccessException("Error: Cannot create auth. User is already authenticated.");}
 
@@ -24,6 +25,7 @@ public class SqlAuthDAO implements AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("SELECT authToken, username FROM auth WHERE authToken = ?");
             pdStmt.setString(1, authToken);
@@ -43,6 +45,7 @@ public class SqlAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("DELETE FROM auth WHERE authToken = ?");
             pdStmt.setString(1, authToken);
@@ -57,6 +60,7 @@ public class SqlAuthDAO implements AuthDAO {
 
     @Override
     public void clear() throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("TRUNCATE TABLE auth");
             pdStmt.executeUpdate();

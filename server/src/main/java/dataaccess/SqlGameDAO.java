@@ -13,6 +13,7 @@ public class SqlGameDAO implements GameDAO {
 
     @Override
     public boolean createGame(GameData gameData) throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("INSERT INTO game (whiteUsername, blackUsername, gameName, chessGame) VALUES (?, ?, ?, ?)");
             pdStmt.setString(1, gameData.whiteUsername());
@@ -32,6 +33,7 @@ public class SqlGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("SELECT whiteUsername, blackUsername, gameName, chessGame FROM game WHERE gameID = ?");
             pdStmt.setInt(1, gameID);
@@ -55,6 +57,7 @@ public class SqlGameDAO implements GameDAO {
 
     @Override
     public ArrayList<GameData> listGames() throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("SELECT * FROM game");
             var resultSet = pdStmt.executeQuery();
@@ -78,6 +81,7 @@ public class SqlGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("UPDATE game SET whiteUsername = ?, blackUsername = ?, gameName = ?, chessGame = ? WHERE gameID = ?");
             pdStmt.setString(1, gameData.whiteUsername());
@@ -98,6 +102,7 @@ public class SqlGameDAO implements GameDAO {
 
     @Override
     public void clear() throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("TRUNCATE TABLE game");
             pdStmt.executeUpdate();

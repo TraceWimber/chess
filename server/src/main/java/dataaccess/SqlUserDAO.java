@@ -1,6 +1,5 @@
 package dataaccess;
 
-import model.AuthData;
 import model.UserData;
 
 import java.sql.SQLException;
@@ -9,6 +8,7 @@ public class SqlUserDAO implements UserDAO {
 
     @Override
     public boolean createUser(UserData userData) throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             UserData usrD = getUser(userData.username());
             if (usrD == null) {
@@ -28,6 +28,7 @@ public class SqlUserDAO implements UserDAO {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("SELECT username, password, email FROM user WHERE username = ?");
             pdStmt.setString(1, username);
@@ -48,6 +49,7 @@ public class SqlUserDAO implements UserDAO {
 
     @Override
     public void clear() throws DataAccessException {
+        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var pdStmt = conn.prepareStatement("TRUNCATE TABLE user");
             pdStmt.executeUpdate();
