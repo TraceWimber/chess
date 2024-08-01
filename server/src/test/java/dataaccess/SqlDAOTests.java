@@ -7,6 +7,7 @@ import model.GameData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class SqlDAOTests {
 
@@ -267,13 +268,27 @@ public class SqlDAOTests {
     @Test
     @DisplayName("List Games Works")
     public void listGames() throws Exception {
+        GameData game2 = new GameData(2, null, null, "game 2", new ChessGame());
+        GameData game3 = new GameData(3, null, null, "game 3", new ChessGame());
+        gameDAO.createGame(game1);
+        gameDAO.createGame(game2);
+        gameDAO.createGame(game3);
 
+        ArrayList<GameData> gamesList = new ArrayList<>();
+        gamesList.add(game1);
+        gamesList.add(game2);
+        gamesList.add(game3);
+
+        Assertions.assertEquals(gamesList.get(0).gameName(), gameDAO.listGames().get(0).gameName());
+        Assertions.assertEquals(gamesList.get(1).gameName(), gameDAO.listGames().get(1).gameName());
+        Assertions.assertEquals(gamesList.get(2).gameName(), gameDAO.listGames().get(2).gameName());
     }
 
     @Test
     @DisplayName("Cannot List 0 Games")
     public void emptyList() throws Exception {
-
+        ArrayList<GameData> games = new ArrayList<>();
+        Assertions.assertEquals(games, gameDAO.listGames());
     }
 
     //------------UPDATE GAME positive & negative tests---------------
