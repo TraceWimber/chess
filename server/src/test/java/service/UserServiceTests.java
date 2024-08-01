@@ -17,6 +17,7 @@ public class UserServiceTests {
         user1 = new UserData("player1", "hello", "1@gmail.com");
         user2 = new UserData("player2", "xxxxx", "2@yahoo.com");
         authUser1 = new AuthData("abcdef", "player1");
+
     }
 
     @BeforeEach
@@ -88,7 +89,7 @@ public class UserServiceTests {
     //------------CLEAR test---------------
     @Test
     @DisplayName("Testing Clear")
-    public void clearUserAndAuthData() throws DataAccessException {
+    public void clearUserAndAuthData() throws Exception {
         userService.clear();
         Assertions.assertNull(userService.userDAO.getUser("player1"));
         Assertions.assertNull(userService.userDAO.getUser("player2"));

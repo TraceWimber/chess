@@ -99,7 +99,7 @@ public class SqlGameDAO implements GameDAO {
     @Override
     public void clear() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var pdStmt = conn.prepareStatement("DELETE FROM game");
+            var pdStmt = conn.prepareStatement("TRUNCATE TABLE game");
             pdStmt.executeUpdate();
         }
         catch (SQLException e) {

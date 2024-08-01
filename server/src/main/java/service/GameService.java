@@ -14,7 +14,7 @@ public class GameService extends Service {
      * @return ArrayList of all games
      */
     public ArrayList<GameData> listGames(AuthData authData) throws Exception {
-        String user = authenticate(authData.authToken());
+        authenticate(authData.authToken());
         return gameDAO.listGames();
     }
 
@@ -26,7 +26,7 @@ public class GameService extends Service {
      * @return GameData for the new game
      */
     public GameData createGame(AuthData authData, GameData gameData) throws Exception {
-        String user = authenticate(authData.authToken());
+        authenticate(authData.authToken());
         if (gameData.gameName() == null) {throw new BadRequestException("Error: Game name is required.");}
         int id = gameDAO.listGames().size();
 

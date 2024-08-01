@@ -8,8 +8,14 @@ public class Service {
     protected GameDAO gameDAO;
 
     public Service() {
-        authDAO = MemoryAuthDAO.getInstance();
-        userDAO = MemoryUserDAO.getInstance();
-        gameDAO = MemoryGameDAO.getInstance();
+        // If you want to use the memory-based version of this, uncomment these lines below
+        // authDAO = MemoryAuthDAO.getInstance();
+        // userDAO = MemoryUserDAO.getInstance();
+        // gameDAO = MemoryGameDAO.getInstance();
+
+        //Sql-based code:
+        authDAO = new SqlAuthDAO();
+        userDAO = new SqlUserDAO();
+        gameDAO = new SqlGameDAO();
     }
 }
