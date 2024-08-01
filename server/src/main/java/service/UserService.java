@@ -66,7 +66,7 @@ public class UserService extends Service {
      * Used only for development. Clears the db of all UserData and AuthData.
      * Remove this method before going into production.
      */
-    public void clear() {
+    public void clear() throws Exception {
         userDAO.clear();
         authDAO.clear();
     }

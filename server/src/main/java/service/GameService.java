@@ -74,7 +74,7 @@ public class GameService extends Service {
      * Used only for development. Clears the db of all GameData.
      * Remove this method before going into production.
      */
-    public void clear() {
+    public void clear() throws Exception {
         gameDAO.clear();
     }
 
