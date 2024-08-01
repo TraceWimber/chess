@@ -18,7 +18,7 @@ public interface AuthDAO {
      * @param authToken Authorization to search for
      * @return AuthData object or null if not found
      */
-    AuthData getAuth(String authToken);
+    AuthData getAuth(String authToken) throws DataAccessException;
 
     /**
      * Delete given authorization from db
@@ -31,5 +31,5 @@ public interface AuthDAO {
     /**
      * Clear all AuthData from db
      */
-    void clear();
+    void clear() throws DataAccessException;
 }

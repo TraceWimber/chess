@@ -97,7 +97,7 @@ public class GameServiceTests {
     //------------CLEAR test---------------
     @Test
     @DisplayName("Testing Clear")
-    public void clearGames() {
+    public void clearGames() throws Exception {
         gameService.clear();
         Assertions.assertEquals(testGameDAO.listGames(), gameService.gameDAO.listGames());
     }

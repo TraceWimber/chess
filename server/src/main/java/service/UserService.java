@@ -14,7 +14,7 @@ public class UserService extends Service {
      * @param userData The UserData containing the user's username, email, and password
      * @return AuthData For this user's session
      */
-    public AuthData register(UserData userData) throws DataAccessException, BadRequestException {
+    public AuthData register(UserData userData) throws Exception {
         if (userData.username() == null || userData.password() == null) {throw new BadRequestException("Error: Username/Password is required.");}
 
         UserData user = userDAO.getUser(userData.username());
@@ -35,7 +35,7 @@ public class UserService extends Service {
      * @param userData The UserData containing the user's username and password
      * @return AuthData For this user's session
      */
-    public AuthData login(UserData userData) throws BadRequestException, DataAccessException {
+    public AuthData login(UserData userData) throws Exception {
         if (userData.username() == null || userData.password() == null) {throw new BadRequestException("Error: Username/Password is required.");}
 
         UserData user = userDAO.getUser(userData.username());
@@ -56,7 +56,7 @@ public class UserService extends Service {
      * @param authData The current user's AuthData
      * @return True if successful
      */
-    public boolean logout(AuthData authData) throws BadRequestException, DataAccessException {
+    public boolean logout(AuthData authData) throws Exception {
         String token = authenticate(authData.authToken());
         authDAO.deleteAuth(token);
         return true;
@@ -77,7 +77,7 @@ public class UserService extends Service {
      * @param token The authentication token to check for
      * @return The token
      */
-    private String authenticate(String token) throws BadRequestException {
+    private String authenticate(String token) throws Exception {
         AuthData authData = authDAO.getAuth(token);
         if (authData != null) {return authData.authToken();}
         throw new BadRequestException("Error: Unauthorized.");

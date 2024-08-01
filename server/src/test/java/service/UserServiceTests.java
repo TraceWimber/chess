@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -87,7 +88,7 @@ public class UserServiceTests {
     //------------CLEAR test---------------
     @Test
     @DisplayName("Testing Clear")
-    public void clearUserAndAuthData() {
+    public void clearUserAndAuthData() throws DataAccessException {
         userService.clear();
         Assertions.assertNull(userService.userDAO.getUser("player1"));
         Assertions.assertNull(userService.userDAO.getUser("player2"));

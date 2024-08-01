@@ -1,7 +1,6 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ public class GameService extends Service {
      * @param authData The authentication data of the user
      * @return ArrayList of all games
      */
-    public ArrayList<GameData> listGames(AuthData authData) throws BadRequestException {
+    public ArrayList<GameData> listGames(AuthData authData) throws Exception {
         String user = authenticate(authData.authToken());
         return gameDAO.listGames();
     }
@@ -26,7 +25,7 @@ public class GameService extends Service {
      * @param gameData Contains the name for the new game
      * @return GameData for the new game
      */
-    public GameData createGame(AuthData authData, GameData gameData) throws BadRequestException {
+    public GameData createGame(AuthData authData, GameData gameData) throws Exception {
         String user = authenticate(authData.authToken());
         if (gameData.gameName() == null) {throw new BadRequestException("Error: Game name is required.");}
         int id = gameDAO.listGames().size();
@@ -45,7 +44,7 @@ public class GameService extends Service {
      * @param gameData Contains which team the player wants to join
      * @return True if successful
      */
-    public boolean joinGame(AuthData authData, GameData gameData) throws BadRequestException, DataAccessException {
+    public boolean joinGame(AuthData authData, GameData gameData) throws Exception {
         String user = authenticate(authData.authToken());
         GameData game = gameDAO.getGame(gameData.gameID());
 
@@ -85,7 +84,7 @@ public class GameService extends Service {
      * @param token The authentication token to check for
      * @return The username associated with the given token
      */
-    private String authenticate(String token) throws BadRequestException {
+    private String authenticate(String token) throws Exception {
         AuthData authData = authDAO.getAuth(token);
         if (authData != null) {return authData.username();}
         throw new BadRequestException("Error: Unauthorized.");

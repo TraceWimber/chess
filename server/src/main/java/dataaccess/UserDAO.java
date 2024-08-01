@@ -18,10 +18,10 @@ public interface UserDAO {
      * @param username String containing name of player to get
      * @return UserData object or null if not found
      */
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 
     /**
      * Clear all UserData from db
      */
-    void clear();
+    void clear() throws DataAccessException;
 }

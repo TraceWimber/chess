@@ -44,13 +44,14 @@ public class DatabaseManager {
                 preparedStatement.executeUpdate();
             }
             //added code to create Auth, User, and Game Tables
+            conn.setCatalog(DATABASE_NAME);
             statement = """
                 CREATE TABLE IF NOT EXISTS auth (
                 authToken CHAR(36) NOT NULL,
                 username VARCHAR(255) NOT NULL
                 )""";
-            try (var authTableStatement = conn.prepareStatement(statement)) {
-                authTableStatement.executeUpdate();
+            try (var authPdStmt = conn.prepareStatement(statement)) {
+                authPdStmt.executeUpdate();
             }
 
             statement = """
@@ -59,20 +60,20 @@ public class DatabaseManager {
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(255) NOT NULL
                 )""";
-            try (var authTableStatement = conn.prepareStatement(statement)) {
-                authTableStatement.executeUpdate();
+            try (var userPdStmt = conn.prepareStatement(statement)) {
+                userPdStmt.executeUpdate();
             }
 
             statement = """
                 CREATE TABLE IF NOT EXISTS game (
                 gameID INT AUTO_INCREMENT PRIMARY KEY,
-                whiteUsername VARCHAR(255) NOT NULL,
-                blackUsername VARCHAR(255) NOT NULL,
+                whiteUsername VARCHAR(255),
+                blackUsername VARCHAR(255),
                 gameName VARCHAR(255) NOT NULL,
                 chessGame TEXT NOT NULL
                 )""";
-            try (var authTableStatement = conn.prepareStatement(statement)) {
-                authTableStatement.executeUpdate();
+            try (var gamePdStmt = conn.prepareStatement(statement)) {
+                gamePdStmt.executeUpdate();
             }
 
         } catch (SQLException e) {

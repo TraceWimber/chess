@@ -10,7 +10,7 @@ public interface GameDAO {
      * @param gameData GameData object containing the new game
      * @return True if successful
      */
-    boolean createGame(GameData gameData);
+    boolean createGame(GameData gameData) throws DataAccessException;
 
     /**
      * Find a game in the db
@@ -25,7 +25,7 @@ public interface GameDAO {
      *
      * @return List of all games
      */
-    ArrayList<GameData> listGames();
+    ArrayList<GameData> listGames() throws DataAccessException;
 
     /**
      * Adds given player to a game or makes a move for that player
@@ -38,5 +38,5 @@ public interface GameDAO {
     /**
      * Clear all GameData from db
      */
-    void clear();
+    void clear() throws DataAccessException;
 }
