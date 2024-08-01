@@ -151,7 +151,7 @@ public class SqlDAOTests {
 
     //------------CLEAR test------------------------------------------
     @Test
-    @DisplayName("Clear Works")
+    @DisplayName("Clear Auth Works")
     public void clearAuth() throws Exception {
         AuthData userAuth2 = new AuthData("5678", "player2");
         AuthData userAuth3 = new AuthData("91011", "player3");
@@ -295,23 +295,46 @@ public class SqlDAOTests {
     @Test
     @DisplayName("Update Game Works")
     public void updateGame() throws Exception {
+        gameDAO.createGame(game1);
+        GameData updatedGame = new GameData(1, "Billy", "Bob", "game 1", new ChessGame());
 
+        gameDAO.updateGame(updatedGame);
+        Assertions.assertEquals(1, gameDAO.getGame(1).gameID());
+        Assertions.assertEquals("game 1", gameDAO.getGame(1).gameName());
+        Assertions.assertEquals("Billy", gameDAO.getGame(1).whiteUsername());
+        Assertions.assertEquals("Bob", gameDAO.getGame(1).blackUsername());
     }
 
     @Test
     @DisplayName("Game Doesn't Exist")
     public void cannotUpdateGame() throws Exception {
-
+        Executable noGame = () -> gameDAO.updateGame(game1);
+        Assertions.assertThrows(DataAccessException.class, noGame);
     }
 
     //------------CLEAR test------------------------------------------
     @Test
-    @DisplayName("Clear Works")
+    @DisplayName("Clear Games Works")
     public void clearGames() throws Exception {
+        GameData game2 = new GameData(2, null, null, "game 2", new ChessGame());
+        GameData game3 = new GameData(3, null, null, "game 3", new ChessGame());
+        gameDAO.createGame(game1);
+        gameDAO.createGame(game2);
+        gameDAO.createGame(game3);
+        gameDAO.clear();
 
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("SELECT * FROM game");
+            var resultSet = pdStmt.executeQuery();
+            Assertions.assertFalse(resultSet.isBeforeFirst());
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     //=========================UserDAO=======================
+    //------------CREATE USER positive & negative tests---------------
 
 
 }
