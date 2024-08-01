@@ -19,7 +19,7 @@ public class SqlDAOTests {
     private static SqlAuthDAO authDAO;
     private static SqlGameDAO gameDAO;
     private static SqlUserDAO userDAO;
-    private static Gson GSON;
+    private static Gson gson;
 
     @BeforeAll
     public static void init() throws Exception {
@@ -29,7 +29,7 @@ public class SqlDAOTests {
         authDAO = new SqlAuthDAO();
         gameDAO = new SqlGameDAO();
         userDAO = new SqlUserDAO();
-        GSON = new Gson();
+        gson = new Gson();
         DatabaseManager.createDatabase();
     }
 
@@ -77,15 +77,7 @@ public class SqlDAOTests {
     @Test
     @DisplayName("User Already Authenticated")
     public void authFail() throws Exception {
-        try (var conn = DatabaseManager.getConnection()) {
-            var pdStmt = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)");
-            pdStmt.setString(1, userAuth1.authToken());
-            pdStmt.setString(2, userAuth1.username());
-            pdStmt.executeUpdate();
-        }
-        catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        insertUserAuth1();
 
         Executable createExisting = () -> authDAO.createAuth(userAuth1);
 
@@ -96,15 +88,7 @@ public class SqlDAOTests {
     @Test
     @DisplayName("Get Auth Works")
     public void getAuth() throws Exception {
-        try (var conn = DatabaseManager.getConnection()) {
-            var pdStmt = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)");
-            pdStmt.setString(1, userAuth1.authToken());
-            pdStmt.setString(2, userAuth1.username());
-            pdStmt.executeUpdate();
-        }
-        catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        insertUserAuth1();
 
         AuthData auth = authDAO.getAuth("1234");
 
@@ -123,15 +107,7 @@ public class SqlDAOTests {
     @Test
     @DisplayName("Delete Auth Works")
     public void deleteAuth() throws Exception {
-        try (var conn = DatabaseManager.getConnection()) {
-            var pdStmt = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)");
-            pdStmt.setString(1, userAuth1.authToken());
-            pdStmt.setString(2, userAuth1.username());
-            pdStmt.executeUpdate();
-        }
-        catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        insertUserAuth1();
 
         authDAO.deleteAuth("1234");
 
@@ -195,7 +171,7 @@ public class SqlDAOTests {
             Assertions.assertEquals("whitePlayer", white);
             Assertions.assertEquals("blackPlayer", black);
             Assertions.assertEquals("game 1", gameName);
-            String chessGame = GSON.toJson(new ChessGame());
+            String chessGame = gson.toJson(new ChessGame());
             Assertions.assertEquals(chessGame, game);
         }
         catch (SQLException e) {
@@ -236,7 +212,7 @@ public class SqlDAOTests {
             pdStmt.setString(2, game1.blackUsername());
             pdStmt.setString(3, game1.gameName());
 
-            var gameJson = GSON.toJson(game1.game());
+            var gameJson = gson.toJson(game1.game());
             pdStmt.setString(4, gameJson);
 
             pdStmt.executeUpdate();
@@ -408,6 +384,18 @@ public class SqlDAOTests {
             var pdStmt = conn.prepareStatement("SELECT * FROM user");
             var resultSet = pdStmt.executeQuery();
             Assertions.assertFalse(resultSet.isBeforeFirst());
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    private void insertUserAuth1() throws Exception {
+        try (var conn = DatabaseManager.getConnection()) {
+            var pdStmt = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)");
+            pdStmt.setString(1, userAuth1.authToken());
+            pdStmt.setString(2, userAuth1.username());
+            pdStmt.executeUpdate();
         }
         catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

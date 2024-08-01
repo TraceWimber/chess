@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class SqlGameDAO implements GameDAO {
 
-    private final Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
 
     @Override
     public boolean createGame(GameData gameData) throws DataAccessException {

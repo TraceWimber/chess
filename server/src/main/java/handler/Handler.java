@@ -17,12 +17,12 @@ import java.util.Objects;
 public class Handler {
 
     private static final Gson GSON = new Gson();
-    private static final UserService userService = new UserService();
-    private static final GameService gameService = new GameService();
+    private static final UserService USER_SERVICE = new UserService();
+    private static final GameService GAME_SERVICE = new GameService();
 
     public static Route handleRegister = (Request req, Response res) -> {
         UserData user = GSON.fromJson(req.body(), UserData.class);
-        AuthData auth = userService.register(user);
+        AuthData auth = USER_SERVICE.register(user);
 
         res.type("application/json");
         return GSON.toJson(auth);
@@ -30,7 +30,7 @@ public class Handler {
 
     public static Route handleLogin = (Request req, Response res) -> {
         UserData user = GSON.fromJson(req.body(), UserData.class);
-        AuthData auth = userService.login(user);
+        AuthData auth = USER_SERVICE.login(user);
 
         res.type("application/json");
         return GSON.toJson(auth);
@@ -39,7 +39,7 @@ public class Handler {
     public static Route handleLogout = (Request req, Response res) -> {
         String token = req.headers("authorization");
         AuthData auth = new AuthData(token, null);
-        userService.logout(auth);
+        USER_SERVICE.logout(auth);
 
         res.type("application/json");
         return "{}";
@@ -49,12 +49,7 @@ public class Handler {
         String token = req.headers("authorization");
         AuthData auth = new AuthData(token, null);
 
-        //See my notes in handleCreate()... uncomment the following 4 lines below to use memory-based db
-        //ArrayList<GameData> gamesArray = new ArrayList<>();
-        //for (GameData game : gameService.listGames(auth)) {
-        //    gamesArray.add(new GameData(game.gameID() + 1, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
-        //}
-        Games games = new Games(gameService.listGames(auth));
+        Games games = new Games(GAME_SERVICE.listGames(auth));
 
         res.type("application/json");
         return GSON.toJson(games);
@@ -65,7 +60,7 @@ public class Handler {
         AuthData auth = new AuthData(token, null);
         GameData gameName = GSON.fromJson(req.body(), GameData.class);
 
-        GameData game = gameService.createGame(auth, gameName);
+        GameData game = GAME_SERVICE.createGame(auth, gameName);
 
         //I had to add this code, because the project specifications for my CS 240 class were unfortunately incomplete.
         //There were a number of output requirements that weren't in the instructions.
@@ -98,17 +93,15 @@ public class Handler {
             game = new GameData(game.gameID(), null, teamColor, null, null);
         } else {throw new BadRequestException("Error: Please provide valid team color.");}
 
-        //See my notes in handleCreate()... Add the line below back in to use Memory-based db
-        //game = new GameData(game.gameID() - 1, game.whiteUsername(), game.blackUsername(), null, null);
-        gameService.joinGame(auth, game);
+        GAME_SERVICE.joinGame(auth, game);
 
         res.type("application/json");
         return "{}";
     };
 
     public static Route handleClear = (Request req, Response res) -> {
-        userService.clear();
-        gameService.clear();
+        USER_SERVICE.clear();
+        GAME_SERVICE.clear();
 
         res.type("application/json");
         return "{}";
