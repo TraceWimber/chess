@@ -1,7 +1,6 @@
-package handler;
+package model;
 
 import java.util.ArrayList;
-import model.GameData;
 
 //This class is merely a wrapper so that gson can properly parse an array into JSON
 public class Games {
@@ -9,5 +8,9 @@ public class Games {
 
     public Games(ArrayList<GameData> games) {
         this.games = games;
+    }
+
+    public ArrayList<GameData> getGames() {
+        return games;
     }
 }

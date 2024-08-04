@@ -1,8 +1,10 @@
 package server;
 
 import com.google.gson.Gson;
+import model.AuthData;
 import model.GameData;
 import model.UserData;
+import model.Games;
 
 import java.io.*;
 import java.net.*;
@@ -16,34 +18,44 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public UserData register(UserData userData) throws Exception {
+    public AuthData register(UserData userData) throws Exception {
         var path = "/user";
-        return this.makeRequest("POST", path, userData, UserData.class);
+        return this.makeRequest("POST", path, userData, AuthData.class);
     }
 
-    public UserData login(UserData user) throws Exception {
+    public AuthData login(UserData userData) throws Exception {
         var path = "/session";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, userData, AuthData.class);
     }
 
-    public void logout() throws Exception {
-
+    //TODO: Do I need to adjust makeRequest because the headers matter when passing authTokens?
+    public void logout(String authToken) throws Exception {
+        var path = "/session";
+        this.makeRequest("DELETE", path, authToken, null);
     }
 
-    public ArrayList<GameData> listGames() throws Exception {
-        return null;
+    //TODO: This passes auth header
+    public ArrayList<GameData> listGames(String authToken) throws Exception {
+        var path = "/game";
+        var response = this.makeRequest("GET", path, authToken, Games.class);
+        return response.getGames();
     }
 
-    public GameData createGame(GameData game) throws Exception {
-        return null;
+    //TODO: This should pass auth header, also may only need to return an int gameID
+    public GameData createGame(String authToken, GameData game) throws Exception {
+        var path = "/game";
+        return this.makeRequest("POST", path, game, GameData.class);
     }
 
-    public GameData joinGame(int gameId, UserData user) throws Exception {
-        return null;
+    //TODO: This also should pass auth header
+    public void joinGame(String authToken, GameData gameData) throws Exception {
+        var path = "/game";
+        this.makeRequest("PUT", path, gameData, null);
     }
 
     public void clear() throws Exception {
-
+        var path = "/db";
+        this.makeRequest("DELETE", path, null, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
@@ -75,7 +87,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws Exception {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new BadRequestException(status, "failure: " + status);
+            throw new BadFacadeRequestException(status, "failure: " + status);
         }
     }
 

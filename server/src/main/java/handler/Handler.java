@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import model.AuthData;
 import model.GameData;
+import model.Games;
 import model.UserData;
 import service.BadRequestException;
 import service.GameService;
