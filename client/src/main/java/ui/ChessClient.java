@@ -1,18 +1,24 @@
 package ui;
 
+import model.AuthData;
+import model.UserData;
 import server.BadFacadeRequestException;
 import server.ServerFacade;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ChessClient {
 
     private final ServerFacade server;
     private final String serverUrl;
     private boolean isSignedIn = false;
+    private AuthData currAuth;
+    private UserData currUser;
 
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
+        currAuth = null;
     }
 
     public String eval(String input) {
@@ -55,30 +61,51 @@ public class ChessClient {
     }
 
     public String register(String[] params) throws BadFacadeRequestException {
-        throw new BadFacadeRequestException(400, "register not done!");
+        if (params.length == 3) {
+            currUser = new UserData(params[0], params[1], params[2]);
+            //TODO: Uncomment this when you're ready to test this command with the server
+            // and delete the following if statement block.
+            //currAuth = server.register(currUser);
+
+            if (!Objects.equals(params[0], "taken")) {
+                currAuth = new AuthData("authTokenHere", params[0]);
+            }
+
+            if (currAuth != null) {
+                isSignedIn = true;
+                return EscapeSequences.SET_TEXT_COLOR_YELLOW + "Logged in!";
+            }
+            else {
+                throw new BadFacadeRequestException(400, "That username is taken, sorry.");
+            }
+            //TODO: Will currAuth ever be null without throwing an error?
+        }
+        throw new BadFacadeRequestException(400, "Expected: <username> <password> <email>");
     }
 
     public String help() {
+        System.out.println( EscapeSequences.SET_TEXT_COLOR_GREEN + "Type in one of the commands below!" + EscapeSequences.RESET_TEXT_COLOR);
         if (isSignedIn) {
             return """
-                    - logout
-                    - list
-                    - create
-                    - play
-                    - observe
+                    • logout - sign out
+                    • list - list all of the available games
+                    • create - create a new game
+                    • play - join a game
+                    • observe - spectate a game
                     """;
         }
         return """
-                - quit
-                - login
-                - register
+                • quit
+                • login - to get started
+                • register - if you are new here!
                 """;
     }
 
     public String logout(String[] params) throws BadFacadeRequestException {
         isSignedIn = false;
+        currAuth = null;
         System.out.println("logout not done!");
-        return "Logged out!";
+        return EscapeSequences.SET_TEXT_COLOR_YELLOW + "Logged out!";
     }
 
     public String createGame(String[] params) throws BadFacadeRequestException {

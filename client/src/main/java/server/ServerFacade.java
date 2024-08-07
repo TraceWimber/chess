@@ -5,6 +5,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import model.Games;
+import server.BadFacadeRequestException;
 
 import java.io.*;
 import java.net.*;
@@ -18,7 +19,7 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public AuthData register(UserData userData) throws Exception {
+    public AuthData register(UserData userData) throws BadFacadeRequestException {
         var path = "/user";
         return this.makeRequest("POST", path, userData, AuthData.class);
     }
@@ -58,7 +59,7 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws BadFacadeRequestException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -70,7 +71,7 @@ public class ServerFacade {
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (Exception ex) {
-            throw new Exception("Error!");
+            throw new BadFacadeRequestException(500 , ex.getMessage());
         }
     }
 

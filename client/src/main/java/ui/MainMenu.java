@@ -14,7 +14,7 @@ public class MainMenu {
 
     public void run() {
         System.out.println( EscapeSequences.SET_TEXT_COLOR_GREEN + "♘ Lets Play Chess! ♖");
-        System.out.println(EscapeSequences.RESET_TEXT_COLOR + client.help());
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR + client.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -30,8 +30,7 @@ public class MainMenu {
                 System.out.print(msg);
             }
         }
-        System.out.println("\n");
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_YELLOW + "See ya later!");
+        System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_YELLOW + "See ya later!");
     }
 
     private void printPrompt() {
