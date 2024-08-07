@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import server.BadFacadeRequestException;
 import server.Server;
 import server.ServerFacade;
+import org.junit.jupiter.api.function.Executable;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServerFacadeTests {
@@ -42,13 +43,24 @@ public class ServerFacadeTests {
         Assertions.assertNotNull(auth.authToken());
     }
 
+    @Test
+    @DisplayName("Username Is Taken")
+    @Order(2)
+    public void invalidRegister() throws BadFacadeRequestException {
+        facade.register(user1);
+        Executable regUser = () -> facade.register(new UserData("Trace", "5678", "email2"));
+        Assertions.assertThrows(BadFacadeRequestException.class, regUser);
+    }
+
     //----------------Login positive & negative tests--------------
     @Test
     @DisplayName("Login Works")
     @Order(3)
     public void validLogin() throws BadFacadeRequestException {
+        facade.register(user1);
         var auth = facade.login(user1);
-        Assertions.assertTrue(true);
+        Assertions.assertEquals("Trace", auth.username());
+        Assertions.assertNotNull(auth.authToken());
     }
 
 
