@@ -44,11 +44,6 @@ public class UserService extends Service {
         UserData user = userDAO.getUser(userData.username());
         if (user == null) {throw new BadRequestException("Error: Incorrect password and/or username.");}
 
-        System.out.println("Password being checked: ");
-        System.out.println(userData.password());
-        System.out.println("Password in db: ");
-        System.out.println(user.password());
-
         if (!BCrypt.checkpw(userData.password(), user.password())) {throw new BadRequestException("Error: Incorrect password and/or username.");}
 
         String authToken = UUID.randomUUID().toString();

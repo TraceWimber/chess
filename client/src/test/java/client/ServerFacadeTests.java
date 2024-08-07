@@ -63,6 +63,14 @@ public class ServerFacadeTests {
         Assertions.assertNotNull(auth.authToken());
     }
 
+    @Test
+    @DisplayName("Wrong Password")
+    @Order(4)
+    public void invalidLogin() throws BadFacadeRequestException {
+        facade.register(user1);
+        Executable badPass = () -> facade.login(new UserData("Trace", "5678", null));
+        Assertions.assertThrows(BadFacadeRequestException.class, badPass);
+    }
 
     //----------------Logout positive & negative tests--------------
 
