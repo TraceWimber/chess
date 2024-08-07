@@ -67,8 +67,7 @@ public class Handler {
         //There were a number of output requirements that weren't in the instructions.
         //So, in this case, they made me code the entire thing just to find out that the test cases only accept gameIDs > 0.
         //I had to spend another few hours adding unnecessary code like this to suit very particular output requirements.
-        //EDIT: this line below only helps to use the memory-based db. It has no effect on SQL db
-        // (I'll rework my memory implementation when I'm no longer pressured by due dates)
+        // (I'll rework my implementation when I'm no longer pressured by due dates)
         game = new GameData(game.gameID() + 1, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
 
         res.type("application/json");
