@@ -24,37 +24,37 @@ public class ServerFacade {
         return this.makeRequest("POST", path, userData, AuthData.class);
     }
 
-    public AuthData login(UserData userData) throws Exception {
+    public AuthData login(UserData userData) throws BadFacadeRequestException {
         var path = "/session";
         return this.makeRequest("POST", path, userData, AuthData.class);
     }
 
     //TODO: Do I need to adjust makeRequest because the headers matter when passing authTokens?
-    public void logout(String authToken) throws Exception {
+    public void logout(String authToken) throws BadFacadeRequestException {
         var path = "/session";
         this.makeRequest("DELETE", path, authToken, null);
     }
 
     //TODO: This passes auth header
-    public ArrayList<GameData> listGames(String authToken) throws Exception {
+    public ArrayList<GameData> listGames(String authToken) throws BadFacadeRequestException {
         var path = "/game";
         var response = this.makeRequest("GET", path, authToken, Games.class);
         return response.getGames();
     }
 
     //TODO: This should pass auth header, also may only need to return an int gameID
-    public GameData createGame(String authToken, GameData game) throws Exception {
+    public GameData createGame(String authToken, GameData game) throws BadFacadeRequestException {
         var path = "/game";
         return this.makeRequest("POST", path, game, GameData.class);
     }
 
     //TODO: This also should pass auth header
-    public void joinGame(String authToken, GameData gameData) throws Exception {
+    public void joinGame(String authToken, GameData gameData) throws BadFacadeRequestException {
         var path = "/game";
         this.makeRequest("PUT", path, gameData, null);
     }
 
-    public void clear() throws Exception {
+    public void clear() throws BadFacadeRequestException {
         var path = "/db";
         this.makeRequest("DELETE", path, null, null);
     }

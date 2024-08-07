@@ -56,8 +56,22 @@ public class ChessClient {
     }
 
     public String login(String[] params) throws BadFacadeRequestException {
-        isSignedIn = true;
-        throw new BadFacadeRequestException(400, "login not done!");
+        if (params.length == 2) {
+            currUser = new UserData(params[0], params[1], null);
+            //TODO: Uncomment this when you're ready to test this command with the server
+            // and delete the following if statement block.
+            //currAuth = server.login(currUser);
+
+            if (Objects.equals(params[1], "correctpass")) {
+                currAuth = new AuthData("authTokenHere", params[0]);
+            }
+            if (currAuth != null) {
+                isSignedIn = true;
+                return EscapeSequences.SET_TEXT_COLOR_YELLOW + "Logged in!";
+            }
+            throw new BadFacadeRequestException(400, "username/password incorrect!");
+        }
+        throw new BadFacadeRequestException(400, "Expected: login <username> <password>");
     }
 
     public String register(String[] params) throws BadFacadeRequestException {
@@ -80,7 +94,7 @@ public class ChessClient {
             }
             //TODO: Will currAuth ever be null without throwing an error?
         }
-        throw new BadFacadeRequestException(400, "Expected: <username> <password> <email>");
+        throw new BadFacadeRequestException(400, "Expected: register <username> <password> <email>");
     }
 
     public String help() {
