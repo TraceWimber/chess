@@ -14,26 +14,27 @@ public class MainMenu {
 
     public void run() {
         System.out.println( EscapeSequences.SET_TEXT_COLOR_GREEN + "♘ Lets Play Chess! ♖");
-        System.out.println(client.help());
+        System.out.println(EscapeSequences.RESET_TEXT_COLOR + client.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("Quit")) {
+        while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
 
             try {
                 result = client.eval(line);
-                System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
+                System.out.print(EscapeSequences.RESET_TEXT_COLOR + result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
             }
         }
-        System.out.println();
+        System.out.println("\n");
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_YELLOW + "See ya later!");
     }
 
     private void printPrompt() {
-        System.out.print("\n" + EscapeSequences.SET_TEXT_BLINKING + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_GREEN + ">>> ");
     }
 }

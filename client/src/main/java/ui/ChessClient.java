@@ -61,24 +61,24 @@ public class ChessClient {
     public String help() {
         if (isSignedIn) {
             return """
-                    - Logout
-                    - List
-                    - Create
-                    - Play
-                    - Observe
+                    - logout
+                    - list
+                    - create
+                    - play
+                    - observe
                     """;
         }
         return """
-                - Quit
-                - Login
-                - Register
+                - quit
+                - login
+                - register
                 """;
     }
 
     public String logout(String[] params) throws BadFacadeRequestException {
         isSignedIn = false;
         System.out.println("logout not done!");
-        return "Quit";
+        return "Logged out!";
     }
 
     public String createGame(String[] params) throws BadFacadeRequestException {
