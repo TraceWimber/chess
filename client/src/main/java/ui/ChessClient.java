@@ -1,12 +1,17 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import server.BadFacadeRequestException;
 import server.BadInputException;
 import server.ServerFacade;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -17,11 +22,13 @@ public class ChessClient {
     private boolean isSignedIn = false;
     private AuthData currAuth;
     private UserData currUser;
+    private ArrayList<GameData> gamesList;
 
     public ChessClient(String serverUrl) {
         this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
         currAuth = null;
+        gamesList = new ArrayList<>();
     }
 
     public String eval(String input) {
@@ -132,32 +139,36 @@ public class ChessClient {
 
     //TODO: Implement keeping track of the games list, and remove display of GameIDs.
     public String listGames() throws BadFacadeRequestException, BadInputException {
-        var games = server.listGames(currAuth.authToken());
+        gamesList = server.listGames(currAuth.authToken());
 
         int counter = 0;
-        for (GameData game : games) {
+        for (GameData game : gamesList) {
             counter++;
             System.out.println(counter + ".");
             System.out.println("    Game Name: " + game.gameName());
-            System.out.println("    Game ID: " + game.gameID());
             System.out.println("    Player White: " + game.whiteUsername());
             System.out.println("    Player Black: " + game.blackUsername());
         }
-        return EscapeSequences.SET_TEXT_COLOR_YELLOW + "Use the Game ID to join or observe a game!";
+        return EscapeSequences.SET_TEXT_COLOR_YELLOW + "Use the game number to join or observe a game!";
     }
 
     //TODO: Implement joining a game based on it's local id in the client, not it's actual gameID.
     public String joinGame(String[] params) throws BadFacadeRequestException, BadInputException {
+        gamesList = server.listGames(currAuth.authToken());
+
         if (params.length == 2) {
+            int gameID = gamesList.get(Integer.parseInt(params[0]) - 1).gameID();
             if (Objects.equals(params[1], "white")) {
-                server.joinGame(currAuth.authToken(), new GameData(Integer.parseInt(params[0]), "WHITE", null, null, null));
+                server.joinGame(currAuth.authToken(), new GameData(gameID, "WHITE", null, null, null));
                 //TODO: Implement the board printing...
+                printWhiteView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
                 return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
                         EscapeSequences.SET_TEXT_COLOR_WHITE + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
                         EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
             } else if (Objects.equals(params[1], "black")) {
-                server.joinGame(currAuth.authToken(), new GameData(Integer.parseInt(params[0]), null, "BLACK", null, null));
+                server.joinGame(currAuth.authToken(), new GameData(gameID, null, "BLACK", null, null));
                 //TODO: Implement the board printing...
+                printBlackView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
                 return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
                         EscapeSequences.SET_TEXT_COLOR_BLACK + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
                         EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
@@ -168,28 +179,128 @@ public class ChessClient {
     }
 
     public String observeGame(String[] params) throws BadFacadeRequestException, BadInputException {
+        gamesList = server.listGames(currAuth.authToken());
+
         if (params.length == 1) {
-            System.out.println("Not implemented yet, printing default board configuration...");
-            printBoards();
+            printBoards(gamesList.get(Integer.parseInt(params[0]) - 1).game());
+            return "Observing Game " + params[0] + "\n";
         }
         throw new BadInputException(400, "Expected: observe <gameID>");
     }
 
-    private void printBoards() {
-        printWhiteView();
+    private void printBoards(ChessGame game) {
+        printWhiteView(game.getBoard());
         System.out.println(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY.repeat(10) + EscapeSequences.RESET_BG_COLOR);
         System.out.println(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY.repeat(10) + EscapeSequences.RESET_BG_COLOR);
         System.out.print(EscapeSequences.RESET_BG_COLOR);
-        printBlackView();
+        printBlackView(game.getBoard());
     }
 
-    private void printWhiteView() {
-        System.out.println(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK +
-                EscapeSequences.EMPTY + " a  b  c  d  e  f  g  h " + EscapeSequences.EMPTY + EscapeSequences.RESET_BG_COLOR);
-        System.out.println("WHITE REPRESENTATION UNFINISHED");
+    private void printWhiteView(ChessBoard board) {
+        StringBuilder boardDisplay = new StringBuilder();
+
+        boardDisplay.append(letterCoords());
+
+        for (int i = 0; i < 8; i++) {
+            boardDisplay.append(" ").append(8 - i).append(" ");
+
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
+
+                if ((i + j) % 2 == 0) {
+                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                }
+                else {
+                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+                }
+
+                if (piece == null) {
+                    boardDisplay.append(EscapeSequences.EMPTY);
+                }
+                else {
+                    boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
+                }
+
+                boardDisplay.append(EscapeSequences.RESET_BG_COLOR);
+            }
+
+            boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
+        }
+
+        boardDisplay.append(letterCoords());
+
+        System.out.print(EscapeSequences.ERASE_SCREEN);
+        System.out.print(boardDisplay);
     }
 
-    private void printBlackView() {
-        System.out.println("BLACK REPRESENTATION UNFINISHED.");
+    private void printBlackView(ChessBoard board) {
+        StringBuilder boardDisplay = new StringBuilder();
+
+        boardDisplay.append(letterCoords());
+
+        for (int i = 7; i >= 0; i--) {
+            boardDisplay.append(" ").append(8 - i).append(" ");
+
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
+
+                if ((i + j) % 2 == 0) {
+                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                }
+                else {
+                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+                }
+
+                if (piece == null) {
+                    boardDisplay.append(EscapeSequences.EMPTY);
+                }
+                else {
+                    boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
+                }
+
+                boardDisplay.append(EscapeSequences.RESET_BG_COLOR);
+            }
+
+            boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
+        }
+
+        boardDisplay.append(letterCoords());
+
+        System.out.print(EscapeSequences.ERASE_SCREEN);
+        System.out.print(boardDisplay);
+    }
+
+    private static String getPieceUnicode(ChessPiece piece) {
+        return switch (piece.getPieceType()) {
+            case ChessPiece.PieceType.KING ->
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.WHITE_KING : EscapeSequences.BLACK_KING;
+            case ChessPiece.PieceType.QUEEN ->
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.WHITE_QUEEN : EscapeSequences.BLACK_QUEEN;
+            case ChessPiece.PieceType.BISHOP ->
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.WHITE_BISHOP : EscapeSequences.BLACK_BISHOP;
+            case ChessPiece.PieceType.KNIGHT ->
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.WHITE_KNIGHT : EscapeSequences.BLACK_KNIGHT;
+            case ChessPiece.PieceType.ROOK ->
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.WHITE_ROOK : EscapeSequences.BLACK_ROOK;
+            case ChessPiece.PieceType.PAWN ->
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE ? EscapeSequences.WHITE_PAWN : EscapeSequences.BLACK_PAWN;
+        };
+    }
+
+    private static String letterCoords() {
+        StringBuilder letterBuilder = new StringBuilder();
+
+        letterBuilder.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append("   ");
+        letterBuilder.append(" Ａ ");
+        letterBuilder.append(" Ｂ ");
+        letterBuilder.append(" Ｃ ");
+        letterBuilder.append(" Ｄ ");
+        letterBuilder.append(" Ｅ ");
+        letterBuilder.append(" Ｆ ");
+        letterBuilder.append(" Ｇ ");
+        letterBuilder.append(" Ｈ ");
+        letterBuilder.append("\n");
+
+        return letterBuilder.toString();
     }
 }
