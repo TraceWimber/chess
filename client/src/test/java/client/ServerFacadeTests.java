@@ -73,6 +73,22 @@ public class ServerFacadeTests {
     }
 
     //----------------Logout positive & negative tests--------------
+    @Test
+    @DisplayName("Logout Works")
+    @Order(5)
+    public void validLogout() throws BadFacadeRequestException {
+        var auth = facade.register(user1);
+        Executable logOut = () -> facade.logout(auth.authToken());
+        Assertions.assertDoesNotThrow(logOut);
+    }
+
+    @Test
+    @DisplayName("Unauthorized Logout")
+    @Order(6)
+    public void invalidLogout() {
+        Executable logOut = () -> facade.logout("fakeAuthToken");
+        Assertions.assertThrows(BadFacadeRequestException.class, logOut);
+    }
 
     //----------------ListGames positive & negative tests--------------
 
