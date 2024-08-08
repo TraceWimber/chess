@@ -116,14 +116,29 @@ public class ServerFacadeTests {
     @DisplayName("ListGames Works")
     @Order(9)
     public void validList() throws BadFacadeRequestException {
+        var auth = facade.register(user1);
+        facade.createGame(auth.authToken(), new GameData(1, null, null, "game1", new ChessGame()));
+        facade.createGame(auth.authToken(), new GameData(2, null, null, "game2", new ChessGame()));
+        facade.createGame(auth.authToken(), new GameData(3, null, null, "game3", new ChessGame()));
 
+        var games = facade.listGames(auth.authToken());
+        Assertions.assertEquals(3, games.size());
+        Assertions.assertEquals("game1", games.getFirst().gameName());
+        Assertions.assertEquals("game2", games.get(1).gameName());
+        Assertions.assertEquals("game3", games.get(2).gameName());
     }
 
     @Test
     @DisplayName("Unauthorized ListGames")
     @Order(10)
     public void invalidList() throws BadFacadeRequestException {
+        var auth = facade.register(user1);
+        facade.createGame(auth.authToken(), new GameData(1, null, null, "game1", new ChessGame()));
+        facade.createGame(auth.authToken(), new GameData(2, null, null, "game2", new ChessGame()));
+        facade.createGame(auth.authToken(), new GameData(3, null, null, "game3", new ChessGame()));
 
+        Executable badList = () -> facade.listGames("fakeAuthToken");
+        Assertions.assertThrows(BadFacadeRequestException.class, badList);
     }
 
     //----------------JoinGame positive & negative tests--------------
