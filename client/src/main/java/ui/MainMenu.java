@@ -30,7 +30,7 @@ public class MainMenu {
                 System.out.print(msg);
             }
         }
-        System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_YELLOW + "See ya later!");
+        System.out.println("\n" + EscapeSequences.SET_TEXT_COLOR_YELLOW + "See ya later!");
     }
 
     private void printPrompt() {
