@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessGame;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.BadFacadeRequestException;
@@ -90,9 +92,39 @@ public class ServerFacadeTests {
         Assertions.assertThrows(BadFacadeRequestException.class, logOut);
     }
 
-    //----------------ListGames positive & negative tests--------------
-
     //----------------CreateGame positive & negative tests--------------
+    @Test
+    @DisplayName("CreateGame Works")
+    @Order(7)
+    public void validCreate() throws BadFacadeRequestException {
+        var auth = facade.register(user1);
+        var game = facade.createGame(auth.authToken(), new GameData(1, null, null, "game1", new ChessGame()));
+        Assertions.assertEquals(1, game.gameID());
+        Assertions.assertEquals("game1", game.gameName());
+    }
+
+    @Test
+    @DisplayName("Unauthorized CreateGame")
+    @Order(8)
+    public void invalidCreate() {
+        Executable badCreate = () -> facade.createGame("fakeAuthToken", new GameData(1, null, null, "game1", new ChessGame()));
+        Assertions.assertThrows(BadFacadeRequestException.class, badCreate);
+    }
+
+    //----------------ListGames positive & negative tests--------------
+    @Test
+    @DisplayName("ListGames Works")
+    @Order(9)
+    public void validList() throws BadFacadeRequestException {
+
+    }
+
+    @Test
+    @DisplayName("Unauthorized ListGames")
+    @Order(10)
+    public void invalidList() throws BadFacadeRequestException {
+
+    }
 
     //----------------JoinGame positive & negative tests--------------
 
