@@ -1,7 +1,5 @@
 package ui;
 
-import server.BadFacadeRequestException;
-
 import java.util.Scanner;
 
 public class MainMenu {
@@ -12,6 +10,9 @@ public class MainMenu {
         client = new ChessClient(serverUrl);
     }
 
+    /**
+     * Starts the chess client, displaying introductory text
+     */
     public void run() {
         System.out.println( EscapeSequences.SET_TEXT_COLOR_GREEN + "♘ Lets Play Chess! ♖");
         System.out.print(EscapeSequences.RESET_TEXT_COLOR + client.help());
@@ -33,6 +34,9 @@ public class MainMenu {
         System.out.println("\n" + EscapeSequences.SET_TEXT_COLOR_YELLOW + "See ya later!");
     }
 
+    /**
+     * Prints arrows to prompt the user for input
+     */
     private void printPrompt() {
         System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_GREEN + ">>> ");
     }

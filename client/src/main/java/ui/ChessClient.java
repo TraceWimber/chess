@@ -18,21 +18,27 @@ import java.util.Objects;
 public class ChessClient {
 
     private final ServerFacade server;
-    private final String serverUrl;
     private boolean isSignedIn = false;
     private AuthData currAuth;
     private UserData currUser;
     private ArrayList<GameData> gamesList;
 
     public ChessClient(String serverUrl) {
-        this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
         currAuth = null;
         gamesList = new ArrayList<>();
     }
 
+    /**
+     * Evaluates the user input to determine which command was given.
+     * If an invalid command was given, displays the help menu
+     *
+     * @param input the string of input given by the user
+     * @return a string response indicating status of the client
+     */
     public String eval(String input) {
         try {
+            // Menu for unauthenticated users
             if (!isSignedIn) {
                 var tokens = input.toLowerCase().split(" ");
                 var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -45,11 +51,12 @@ public class ChessClient {
                 };
             }
 
+            // Menu for authenticated users
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "logout" -> logout(params);
+                case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "play" -> joinGame(params);
@@ -68,6 +75,12 @@ public class ChessClient {
         }
     }
 
+    /**
+     * Logs the user in
+     *
+     * @param params An array containing all the parameters included in the user's command
+     * @return success or failure message
+     */
     public String login(String[] params) throws BadInputException, BadFacadeRequestException {
         if (params.length == 2) {
             currUser = new UserData(params[0], params[1], null);
@@ -82,6 +95,12 @@ public class ChessClient {
         throw new BadInputException(400, "Expected: login <username> <password>");
     }
 
+    /**
+     * Registers the user
+     *
+     * @param params An array containing all the parameters included in the user's command
+     * @return success or failure message
+     */
     public String register(String[] params) throws BadFacadeRequestException, BadInputException {
         if (params.length == 3) {
             currUser = new UserData(params[0], params[1], params[2]);
@@ -98,6 +117,12 @@ public class ChessClient {
         throw new BadInputException(400, "Expected: register <username> <password> <email>");
     }
 
+    /**
+     * The help menu. Displays different commands based on
+     * if the user has logged in or not
+     *
+     * @return string containing the help text
+     */
     public String help() {
         System.out.println( EscapeSequences.SET_TEXT_COLOR_GREEN + "Type in one of the commands below!" + EscapeSequences.RESET_TEXT_COLOR);
         if (isSignedIn) {
@@ -116,7 +141,12 @@ public class ChessClient {
                 """;
     }
 
-    public String logout(String[] params) throws BadFacadeRequestException, BadInputException {
+    /**
+     * Logs the user out
+     *
+     * @return success or failure message
+     */
+    public String logout() throws BadFacadeRequestException, BadInputException {
         server.logout(currAuth.authToken());
         isSignedIn = false;
         currAuth = null;
@@ -124,6 +154,12 @@ public class ChessClient {
         return EscapeSequences.SET_TEXT_COLOR_YELLOW + "Logged out!";
     }
 
+    /**
+     * Creates a new game
+     *
+     * @param params An array containing all the parameters included in the user's command
+     * @return success or failure message
+     */
     public String createGame(String[] params) throws BadFacadeRequestException, BadInputException {
         if (params.length == 1) {
             GameData game = server.createGame(currAuth.authToken(), new GameData(0, null, null, params[0], new ChessGame()));
@@ -137,10 +173,17 @@ public class ChessClient {
         throw new BadInputException(400, "Expected: create <game name>");
     }
 
-    //TODO: Implement keeping track of the games list, and remove display of GameIDs.
+    /**
+     * Prints all games
+     *
+     * @return success or failure message
+     */
     public String listGames() throws BadFacadeRequestException, BadInputException {
         gamesList = server.listGames(currAuth.authToken());
 
+        if (gamesList.isEmpty()) {
+            return EscapeSequences.SET_TEXT_COLOR_YELLOW + "There are no games. Use 'create' to start one!";
+        }
         int counter = 0;
         for (GameData game : gamesList) {
             counter++;
@@ -152,23 +195,34 @@ public class ChessClient {
         return EscapeSequences.SET_TEXT_COLOR_YELLOW + "Use the game number to join or observe a game!";
     }
 
-    //TODO: Implement joining a game based on it's local id in the client, not it's actual gameID.
+    /**
+     * Joins the user to the given game as the given team
+     *
+     * @param params An array containing all the parameters included in the user's command
+     * @return success or failure message
+     */
     public String joinGame(String[] params) throws BadFacadeRequestException, BadInputException {
         gamesList = server.listGames(currAuth.authToken());
 
         if (params.length == 2) {
             int gameID = gamesList.get(Integer.parseInt(params[0]) - 1).gameID();
+
+            // Joins player to the white team
             if (Objects.equals(params[1], "white")) {
                 server.joinGame(currAuth.authToken(), new GameData(gameID, "WHITE", null, null, null));
-                //TODO: Implement the board printing...
+
                 printWhiteView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
+
                 return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
                         EscapeSequences.SET_TEXT_COLOR_WHITE + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
                         EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
-            } else if (Objects.equals(params[1], "black")) {
+            }
+            // Joins player to the black team
+            else if (Objects.equals(params[1], "black")) {
                 server.joinGame(currAuth.authToken(), new GameData(gameID, null, "BLACK", null, null));
-                //TODO: Implement the board printing...
+
                 printBlackView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
+
                 return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
                         EscapeSequences.SET_TEXT_COLOR_BLACK + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
                         EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
@@ -178,6 +232,12 @@ public class ChessClient {
         throw new BadInputException(400, "Expected: play <gameID> <WHITE|BLACK>");
     }
 
+    /**
+     * Puts the user into observation mode
+     *
+     * @param params An array containing all the parameters included in the user's command
+     * @return success or failure message
+     */
     public String observeGame(String[] params) throws BadFacadeRequestException, BadInputException {
         gamesList = server.listGames(currAuth.authToken());
 
@@ -188,6 +248,7 @@ public class ChessClient {
         throw new BadInputException(400, "Expected: observe <gameID>");
     }
 
+    // prints a representation of the given game from both WHITE and BLACK players' perspectives
     private void printBoards(ChessGame game) {
         printWhiteView(game.getBoard());
         System.out.println(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY.repeat(10) + EscapeSequences.RESET_BG_COLOR);
@@ -196,6 +257,7 @@ public class ChessClient {
         printBlackView(game.getBoard());
     }
 
+    // prints a representation of the given board from the WHITE player's perspective
     private void printWhiteView(ChessBoard board) {
         StringBuilder boardDisplay = new StringBuilder();
 
@@ -233,6 +295,7 @@ public class ChessClient {
         System.out.print(boardDisplay);
     }
 
+    // prints a representation of the given board from the BLACK player's perspective
     private void printBlackView(ChessBoard board) {
         StringBuilder boardDisplay = new StringBuilder();
 
@@ -270,6 +333,7 @@ public class ChessClient {
         System.out.print(boardDisplay);
     }
 
+    // returns the ANSI Escape Sequence for a given ChessPiece
     private static String getPieceUnicode(ChessPiece piece) {
         return switch (piece.getPieceType()) {
             case ChessPiece.PieceType.KING ->
@@ -287,6 +351,7 @@ public class ChessClient {
         };
     }
 
+    // returns a string representation of the letter coordinates used for the top and bottom of a chess board
     private static String letterCoords() {
         StringBuilder letterBuilder = new StringBuilder();
 
