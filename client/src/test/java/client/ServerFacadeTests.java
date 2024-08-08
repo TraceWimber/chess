@@ -142,7 +142,52 @@ public class ServerFacadeTests {
     }
 
     //----------------JoinGame positive & negative tests--------------
+    @Test
+    @DisplayName("JoinGame Works")
+    @Order(11)
+    public void validJoin() throws BadFacadeRequestException {
+        var auth = facade.register(user1);
+        facade.createGame(auth.authToken(), new GameData(1, null, null, "game1", new ChessGame()));
+        facade.joinGame(auth.authToken(), new GameData(1, "WHITE", null, null, null));
+        var games = facade.listGames(auth.authToken());
+
+        Assertions.assertEquals(1, games.getFirst().gameID());
+        Assertions.assertEquals("Trace", games.getFirst().whiteUsername());
+
+        facade.joinGame(auth.authToken(), new GameData(1, null, "BLACK", null, null));
+        games = facade.listGames(auth.authToken());
+
+        Assertions.assertEquals(1, games.getFirst().gameID());
+        Assertions.assertEquals("Trace", games.getFirst().whiteUsername());
+        Assertions.assertEquals("Trace", games.getFirst().blackUsername());
+    }
+
+    @Test
+    @DisplayName("Game Is Full")
+    @Order(12)
+    public void invalidJoin() throws BadFacadeRequestException {
+        var auth = facade.register(user1);
+        facade.createGame(auth.authToken(), new GameData(1, null, null, "game1", new ChessGame()));
+        facade.joinGame(auth.authToken(), new GameData(1, "WHITE", null, null, null));
+        Executable gameFull = () -> facade.joinGame(auth.authToken(), new GameData(1, "WHITE", null, null, null));
+
+        Assertions.assertThrows(BadFacadeRequestException.class, gameFull);
+    }
 
     //----------------Clear test--------------
+    @Test
+    @DisplayName("Clear Works")
+    @Order(13)
+    public void clearDb() throws BadFacadeRequestException {
+        var auth = facade.register(user1);
+        facade.createGame(auth.authToken(), new GameData(1, null, null, "game1", new ChessGame()));
+        facade.clear();
+        Executable noUsers = () -> facade.login(user1);
 
+        Assertions.assertThrows(BadFacadeRequestException.class, noUsers);
+
+        var auth2 = facade.register(user1);
+        Executable noGames = () -> facade.joinGame(auth2.authToken(), new GameData(1, "WHITE", null, null, null));
+        Assertions.assertThrows(BadFacadeRequestException.class, noGames);
+    }
 }

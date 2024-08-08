@@ -79,19 +79,21 @@ public class Handler {
         AuthData auth = new AuthData(token, null);
         GameData game = GSON.fromJson(req.body(), GameData.class);
 
-        //Here is another case of poor instructions on requirements
-        //I was given the option to just reuse my User, Auth, and GameData models instead of creating specific request and response classes
-        //Little did I know that the test cases would require specific input formats that force strange workarounds like this
-        //Here I am extracting a specific key/value pair from the input using GSON's JsonParser.
-        JsonObject jsonObj = JsonParser.parseString(req.body()).getAsJsonObject();
-        String teamColor = null;
-        if (jsonObj.has("playerColor")) {teamColor = jsonObj.get("playerColor").getAsString();}
+        if (game.whiteUsername() == null && game.blackUsername() == null) {
+            //Here is another case of poor instructions on requirements
+            //I was given the option to just reuse my User, Auth, and GameData models instead of creating specific request and response classes
+            //Little did I know that the test cases would require specific input formats that force strange workarounds like this
+            //Here I am extracting a specific key/value pair from the input using GSON's JsonParser.
+            JsonObject jsonObj = JsonParser.parseString(req.body()).getAsJsonObject();
+            String teamColor = null;
+            if (jsonObj.has("playerColor")) {teamColor = jsonObj.get("playerColor").getAsString();}
 
-        if (Objects.equals(teamColor, "WHITE")) {
-            game = new GameData(game.gameID(), teamColor, null, null, null);
-        } else if (Objects.equals(teamColor, "BLACK")) {
-            game = new GameData(game.gameID(), null, teamColor, null, null);
-        } else {throw new BadRequestException("Error: Please provide valid team color.");}
+            if (Objects.equals(teamColor, "WHITE")) {
+                game = new GameData(game.gameID(), teamColor, null, null, null);
+            } else if (Objects.equals(teamColor, "BLACK")) {
+                game = new GameData(game.gameID(), null, teamColor, null, null);
+            } else {throw new BadRequestException("Error: Please provide valid team color.");}
+        }
 
         GAME_SERVICE.joinGame(auth, game);
 
