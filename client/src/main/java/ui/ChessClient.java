@@ -306,23 +306,7 @@ public class ChessClient {
         innerBuilder.append(" ").append(8 - i).append(" ");
 
         for (int j = 7; j >= 0; j--) {
-            ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
-
-            if ((i + j) % 2 == 0) {
-                innerBuilder.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-            }
-            else {
-                innerBuilder.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-            }
-
-            if (piece == null) {
-                innerBuilder.append(EscapeSequences.EMPTY);
-            }
-            else {
-                innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
-            }
-
-            innerBuilder.append(EscapeSequences.RESET_BG_COLOR);
+            innerBuilder.append(innerLoopOutput(board, i, j));
         }
 
         innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
@@ -336,28 +320,36 @@ public class ChessClient {
         innerBuilder.append(" ").append(8 - i).append(" ");
 
         for (int j = 0; j < 8; j++) {
-            ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
-
-            if ((i + j) % 2 == 0) {
-                innerBuilder.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-            }
-            else {
-                innerBuilder.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-            }
-
-            if (piece == null) {
-                innerBuilder.append(EscapeSequences.EMPTY);
-            }
-            else {
-                innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
-            }
-
-            innerBuilder.append(EscapeSequences.RESET_BG_COLOR);
+            innerBuilder.append(innerLoopOutput(board, i, j));
         }
 
         innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
 
         return innerBuilder.toString();
+    }
+
+    private static String innerLoopOutput(ChessBoard board, int i, int j) {
+        StringBuilder innerOutputBuilder = new StringBuilder();
+
+        ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
+
+        if ((i + j) % 2 == 0) {
+            innerOutputBuilder.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+        }
+        else {
+            innerOutputBuilder.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+        }
+
+        if (piece == null) {
+            innerOutputBuilder.append(EscapeSequences.EMPTY);
+        }
+        else {
+            innerOutputBuilder.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
+        }
+
+        innerOutputBuilder.append(EscapeSequences.RESET_BG_COLOR);
+
+        return innerOutputBuilder.toString();
     }
 
     // returns the ANSI Escape Sequence for a given ChessPiece
