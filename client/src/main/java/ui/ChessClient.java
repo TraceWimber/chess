@@ -205,29 +205,40 @@ public class ChessClient {
         gamesList = server.listGames(currAuth.authToken());
 
         if (params.length == 2) {
-            int gameID = gamesList.get(Integer.parseInt(params[0]) - 1).gameID();
+            try {
+                int gameNum = Integer.parseInt(params[0]);
 
-            // Joins player to the white team
-            if (Objects.equals(params[1], "white")) {
-                server.joinGame(currAuth.authToken(), new GameData(gameID, "WHITE", null, null, null));
+                if (gameNum >= gamesList.size()) {
+                    throw new BadInputException(400, "That game doesn't exist!");
+                }
 
-                printWhiteView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
+                int gameID = gamesList.get(gameNum - 1).gameID();
 
-                return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
-                        EscapeSequences.SET_TEXT_COLOR_WHITE + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
-                        EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
+                // Joins player to the white team
+                if (Objects.equals(params[1], "white")) {
+                    server.joinGame(currAuth.authToken(), new GameData(gameID, "WHITE", null, null, null));
+
+                    printWhiteView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
+
+                    return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
+                            EscapeSequences.SET_TEXT_COLOR_WHITE + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
+                            EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
+                }
+                // Joins player to the black team
+                else if (Objects.equals(params[1], "black")) {
+                    server.joinGame(currAuth.authToken(), new GameData(gameID, null, "BLACK", null, null));
+
+                    printBlackView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
+
+                    return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
+                            EscapeSequences.SET_TEXT_COLOR_BLACK + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
+                            EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
+                }
+                throw new BadInputException(400, "You can only join as white or black.");
             }
-            // Joins player to the black team
-            else if (Objects.equals(params[1], "black")) {
-                server.joinGame(currAuth.authToken(), new GameData(gameID, null, "BLACK", null, null));
-
-                printBlackView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
-
-                return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
-                        EscapeSequences.SET_TEXT_COLOR_BLACK + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
-                        EscapeSequences.SET_TEXT_COLOR_YELLOW + EscapeSequences.RESET_BG_COLOR + " pieces.";
+            catch (NumberFormatException ex) {
+                throw new BadInputException(400, "Expected: play <gameID> <WHITE|BLACK>");
             }
-            throw new BadInputException(400, "You can only join as white or black.");
         }
         throw new BadInputException(400, "Expected: play <gameID> <WHITE|BLACK>");
     }
@@ -277,13 +288,13 @@ public class ChessClient {
     private void printBlackView(ChessBoard board) {
         StringBuilder boardDisplay = new StringBuilder();
 
-        boardDisplay.append(letterCoords());
+        boardDisplay.append(letterCoordsInv());
 
         for (int i = 7; i >= 0; i--) {
             boardDisplay.append(printCols(board, i));
         }
 
-        boardDisplay.append(letterCoords());
+        boardDisplay.append(letterCoordsInv());
 
         System.out.print(EscapeSequences.ERASE_SCREEN);
         System.out.print(boardDisplay);
@@ -350,6 +361,25 @@ public class ChessClient {
         letterBuilder.append(" Ｆ ");
         letterBuilder.append(" Ｇ ");
         letterBuilder.append(" Ｈ ");
+        letterBuilder.append("\n");
+
+        return letterBuilder.toString();
+    }
+
+    // returns a string representation of the letter coordinates used for the top and bottom of a chess board
+    // from the black player's perspective
+    private static String letterCoordsInv() {
+        StringBuilder letterBuilder = new StringBuilder();
+
+        letterBuilder.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append("   ");
+        letterBuilder.append(" Ｈ ");
+        letterBuilder.append(" Ｇ ");
+        letterBuilder.append(" Ｆ ");
+        letterBuilder.append(" Ｅ ");
+        letterBuilder.append(" Ｄ ");
+        letterBuilder.append(" Ｃ ");
+        letterBuilder.append(" Ｂ ");
+        letterBuilder.append(" Ａ ");
         letterBuilder.append("\n");
 
         return letterBuilder.toString();
