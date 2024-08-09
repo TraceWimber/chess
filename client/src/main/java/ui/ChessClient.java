@@ -208,7 +208,7 @@ public class ChessClient {
             try {
                 int gameNum = Integer.parseInt(params[0]);
 
-                if (gameNum >= gamesList.size()) {
+                if (gameNum > gamesList.size() || gameNum < 1) {
                     throw new BadInputException(400, "That game doesn't exist!");
                 }
 
@@ -218,7 +218,7 @@ public class ChessClient {
                 if (Objects.equals(params[1], "white")) {
                     server.joinGame(currAuth.authToken(), new GameData(gameID, "WHITE", null, null, null));
 
-                    printWhiteView(gamesList.get(Integer.parseInt(params[0]) - 1).game().getBoard());
+                    printWhiteView(gamesList.get(gameNum - 1).game().getBoard());
 
                     return EscapeSequences.SET_TEXT_COLOR_YELLOW + "You joined as the " +
                             EscapeSequences.SET_TEXT_COLOR_WHITE + EscapeSequences.SET_BG_COLOR_LIGHT_GREY + params[1] +
@@ -275,7 +275,7 @@ public class ChessClient {
         boardDisplay.append(letterCoords());
 
         for (int i = 0; i < 8; i++) {
-            boardDisplay.append(printCols(board, i));
+            boardDisplay.append(printWhiteCols(board, i));
         }
 
         boardDisplay.append(letterCoords());
@@ -291,7 +291,7 @@ public class ChessClient {
         boardDisplay.append(letterCoordsInv());
 
         for (int i = 7; i >= 0; i--) {
-            boardDisplay.append(printCols(board, i));
+            boardDisplay.append(printBlackCols(board, i));
         }
 
         boardDisplay.append(letterCoordsInv());
@@ -300,7 +300,37 @@ public class ChessClient {
         System.out.print(boardDisplay);
     }
 
-    private static String printCols(ChessBoard board, int i) {
+    private static String printBlackCols(ChessBoard board, int i) {
+        StringBuilder innerBuilder = new StringBuilder();
+
+        innerBuilder.append(" ").append(8 - i).append(" ");
+
+        for (int j = 7; j >= 0; j--) {
+            ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
+
+            if ((i + j) % 2 == 0) {
+                innerBuilder.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+            }
+            else {
+                innerBuilder.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+            }
+
+            if (piece == null) {
+                innerBuilder.append(EscapeSequences.EMPTY);
+            }
+            else {
+                innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
+            }
+
+            innerBuilder.append(EscapeSequences.RESET_BG_COLOR);
+        }
+
+        innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
+
+        return innerBuilder.toString();
+    }
+
+    private static String printWhiteCols(ChessBoard board, int i) {
         StringBuilder innerBuilder = new StringBuilder();
 
         innerBuilder.append(" ").append(8 - i).append(" ");
