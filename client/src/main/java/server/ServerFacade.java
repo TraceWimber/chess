@@ -91,15 +91,15 @@ public class ServerFacade {
     }
 
     // creates a http connection to the server
-    private <T> T makeRequest(String method, String path, String authHeader, Object request, Class<T> responseClass) throws BadFacadeRequestException {
+    private <T> T makeRequest(String method, String path, String header, Object request, Class<T> responseClass) throws BadFacadeRequestException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            if (authHeader != null) {
-                http.addRequestProperty("authorization", authHeader);
+            if (header != null) {
+                http.addRequestProperty("authorization", header);
             }
 
             writeBody(request, http);

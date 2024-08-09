@@ -264,29 +264,7 @@ public class ChessClient {
         boardDisplay.append(letterCoords());
 
         for (int i = 0; i < 8; i++) {
-            boardDisplay.append(" ").append(8 - i).append(" ");
-
-            for (int j = 0; j < 8; j++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
-
-                if ((i + j) % 2 == 0) {
-                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                }
-                else {
-                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-                }
-
-                if (piece == null) {
-                    boardDisplay.append(EscapeSequences.EMPTY);
-                }
-                else {
-                    boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
-                }
-
-                boardDisplay.append(EscapeSequences.RESET_BG_COLOR);
-            }
-
-            boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
+            boardDisplay.append(printCols(board, i));
         }
 
         boardDisplay.append(letterCoords());
@@ -302,35 +280,43 @@ public class ChessClient {
         boardDisplay.append(letterCoords());
 
         for (int i = 7; i >= 0; i--) {
-            boardDisplay.append(" ").append(8 - i).append(" ");
-
-            for (int j = 0; j < 8; j++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
-
-                if ((i + j) % 2 == 0) {
-                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                }
-                else {
-                    boardDisplay.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-                }
-
-                if (piece == null) {
-                    boardDisplay.append(EscapeSequences.EMPTY);
-                }
-                else {
-                    boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
-                }
-
-                boardDisplay.append(EscapeSequences.RESET_BG_COLOR);
-            }
-
-            boardDisplay.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
+            boardDisplay.append(printCols(board, i));
         }
 
         boardDisplay.append(letterCoords());
 
         System.out.print(EscapeSequences.ERASE_SCREEN);
         System.out.print(boardDisplay);
+    }
+
+    private static String printCols(ChessBoard board, int i) {
+        StringBuilder innerBuilder = new StringBuilder();
+
+        innerBuilder.append(" ").append(8 - i).append(" ");
+
+        for (int j = 0; j < 8; j++) {
+            ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
+
+            if ((i + j) % 2 == 0) {
+                innerBuilder.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+            }
+            else {
+                innerBuilder.append(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+            }
+
+            if (piece == null) {
+                innerBuilder.append(EscapeSequences.EMPTY);
+            }
+            else {
+                innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_WHITE).append(getPieceUnicode(piece));
+            }
+
+            innerBuilder.append(EscapeSequences.RESET_BG_COLOR);
+        }
+
+        innerBuilder.append(EscapeSequences.SET_TEXT_COLOR_GREEN).append(" ").append(8 - i).append(" \n");
+
+        return innerBuilder.toString();
     }
 
     // returns the ANSI Escape Sequence for a given ChessPiece
